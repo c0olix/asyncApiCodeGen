@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/iancoleman/strcase"
 	"golang.org/x/exp/slices"
@@ -114,49 +115,55 @@ func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, require
 	newProps := make(map[string]Property)
 	props := properties
 	for propertyName, property := range props {
+		fm := "%s%s `json:\"%s%s\"`" //propertyName optionalPointer type jsonName optionalOmitEmpty
 		typ := ""
+		pointer := ""
+		jsonName := propertyName
+		omit := ""
 		if !slices.Contains(required, propertyName) {
-			typ = "*"
+			pointer = "*"
+			omit = ",omitempty"
 		}
 		switch property.Type {
 		case "integer":
-			typ = typ + "int"
+			typ = "int"
 		case "boolean":
-			typ = typ + "bool"
+			typ = "bool"
 		case "string":
 			if property.Format == "date-time" {
-				typ = typ + "time.Time"
+				typ = "time.Time"
 			} else {
-				typ = typ + property.Type
+				typ = property.Type
 			}
 
 		case "object":
 			if property.AdditionalProperties.Type == "string" {
-				typ = typ + "map[string]string"
+				typ = "map[string]string"
 			} else if property.Object != nil {
-				typ = typ + "struct {"
+				typ = "struct {"
 				for key, val := range property.Object.Properties {
-					typ = typ + "\n" + strcase.ToCamel(key) + " " + val.Type + "`json:\"" + strcase.ToLowerCamel(key) + "\"`"
+					typ = typ + "\n\t\t" + strcase.ToCamel(key) + " " + val.Type + "`json:\"" + strcase.ToLowerCamel(key) + "\"`"
 				}
-				typ = typ + "\n}"
+				typ = typ + "\n\t}"
 			}
 		case "array":
 			typ = typ + "[]"
 			if property.Items.Type == "string" {
 				switch property.Items.Format {
 				case "binary":
-					typ = typ + "[]byte"
+					typ = "[]byte"
 				default:
-					typ = typ + "string"
+					typ = "string"
 				}
 			}
 
 		default:
-			typ = typ + property.Type
+			typ = property.Type
 		}
+		wholeString := fmt.Sprintf(fm, pointer, typ, jsonName, omit)
 		newPropertyName := strcase.ToCamel(propertyName)
 		newProps[newPropertyName] = Property{
-			Type:    typ,
+			Type:    wholeString,
 			Format:  property.Format,
 			Minimum: property.Minimum,
 		}
