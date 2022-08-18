@@ -16,16 +16,16 @@ type KafkaTopicConfig struct {
 	NumPartitions int
 	ReplicationFactor int
 }
-{{- range $event := .Events }}
+{{ range $event := .Events }}
 type {{$event.Name}} struct {
 	{{- range $propertyName, $property := $event.Schema.Properties}}
-	{{$propertyName}} {{$property.Type -}} `json:"{{$propertyName}}"`
+	{{$propertyName}} {{$property.Type -}}
 	{{- end}}
 }
-{{- end}}
+{{ end}}
 
 type ConsumerInterface interface {
-{{- range $channelName, $channel := .Channels }}
+{{ range $channelName, $channel := .Channels }}
 	{{- if $channel.Publish}}
 	Consume{{$channelName}}Event(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
 	{{- end}}
@@ -92,15 +92,15 @@ func NewDefaultProducer(manager messaging.KafkaManager, config KafkaTopicConfig)
 	}, nil
 }
 
-{{- range $channelName, $channel := .Channels }}
+{{ range $channelName, $channel := .Channels }}
 {{- if $channel.Publish}}
 func (d DefaultConsumer) Consume{{$channelName}}Event(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction) {
 	d.{{$channelName}}Topic.Consume({{$channelName}}Event{}, callback, errorCallback)
 }
 {{- end}}
-{{- end}}
+{{ end}}
 
-{{- range $channelName, $channel := .Channels }}
+{{ range $channelName, $channel := .Channels }}
 {{- if $channel.Subscribe}}
 func (d DefaultProducer) Produce{{$channelName}}Event(ctx context.Context, event {{$channelName}}Event, header ...messaging.KafkaHeader) error {
 	err := d.{{$channelName}}Topic.Produce(ctx, event, header...)
@@ -110,5 +110,5 @@ func (d DefaultProducer) Produce{{$channelName}}Event(ctx context.Context, event
 	return nil
 }
 {{- end}}
-{{- end}}
+{{ end}}
 
