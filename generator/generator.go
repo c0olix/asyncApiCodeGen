@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"bytes"
+	"go/format"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -25,12 +27,20 @@ func NewServerCodeGenerator() ServerCodeGenerator {
 func (c ServerCodeGenerator) Generate(asyncApiSpecPath string, out string) (string, error) {
 	spec := c.loadAsyncApiSpec(asyncApiSpecPath)
 	spec.convertToUsableStruct()
-	//var tpl bytes.Buffer
+	var tpl bytes.Buffer
 	f, err := os.Create(out)
 	if err != nil {
 		return "", err
 	}
-	err = c.template.Execute(f, spec)
+	err = c.template.Execute(&tpl, spec)
+	if err != nil {
+		return "", err
+	}
+	p, err := format.Source(tpl.Bytes())
+	if err != nil {
+		return "", err
+	}
+	_, err = f.Write(p)
 	if err != nil {
 		return "", err
 	}
