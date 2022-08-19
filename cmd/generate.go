@@ -20,7 +20,22 @@ var generateCmd = &cobra.Command{
 	asyncApiCodeGen generate bla.yaml
  `,
 	Run: func(cmd *cobra.Command, args []string) {
-		generateServer(args[0], args[1])
+		langFlag, err := cmd.Flags().GetString("lang")
+		if err != nil {
+			logger.Errorf("Unable to get language flag: %v", err)
+		}
+		flavorFlag, err := cmd.Flags().GetString("flavor")
+		if err != nil {
+			logger.Errorf("Unable to get flavor flag: %v", err)
+		}
+		if langFlag == "go" && flavorFlag == "mosaic" {
+			generateMosaicKafkaGoCode(args[0], args[1])
+		} else if langFlag == "java" && flavorFlag == "mosaic" {
+			generateMosaicKafkaJavaCode(args[0], args[1])
+		} else {
+			logger.Fatalf("unsupported flags given")
+		}
+
 	},
 }
 
@@ -35,12 +50,23 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	generateCmd.Flags().StringP("type", "t", "server", "What kind of code should be generated? Server or Client")
+	generateCmd.Flags().StringP("lang", "l", "go", "What kind of code should be generated?")
+	generateCmd.Flags().StringP("flavor", "f", "mosaic", "Which flavor should be used??")
 }
 
-func generateServer(path string, out string) {
+func generateMosaicKafkaGoCode(path string, out string) {
 	logger.Debug("generate called")
-	gen := generator.NewServerCodeGenerator()
+	gen := generator.NewMosaicKafkaGoCodeGenerator()
+	out, err := gen.Generate(path, out)
+	if err != nil {
+		logger.Fatalf("unable to generate code: %v", err)
+	}
+	logger.Debug(out)
+}
+
+func generateMosaicKafkaJavaCode(path string, out string) {
+	logger.Debug("generate called")
+	gen := generator.NewMosaicKafkaJavaCodeGenerator()
 	out, err := gen.Generate(path, out)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)

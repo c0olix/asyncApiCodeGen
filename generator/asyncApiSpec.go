@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+type propertyRewriteFunc func(propertyName string, required []string, property Property, newProps map[string]Property)
+
 type asyncApiSpec struct {
 	Events   []Message `yaml:"-"`
 	AsyncApi string    `yaml:"asyncapi"`
@@ -81,7 +83,7 @@ type Item struct {
 	Format string `yaml:"format"`
 }
 
-func (a *asyncApiSpec) convertToUsableStruct() {
+func (a *asyncApiSpec) convertToGoSpec() {
 	newChannels := make(map[string]Channel)
 	for key, value := range a.Channels {
 		newKey := strcase.ToCamel(strings.ToLower(key))
@@ -90,7 +92,7 @@ func (a *asyncApiSpec) convertToUsableStruct() {
 			if value.Subscribe.Message.Ref != nil {
 				value.Subscribe.Message.findMessageByReferenceInComponents(a.Components)
 			}
-			newProps = a.rewriteProperties(value.Subscribe.Message.Schema.Properties, value.Subscribe.Message.Schema.Required)
+			newProps = a.rewriteProperties(value.Subscribe.Message.Schema.Properties, value.Subscribe.Message.Schema.Required, a.rewriteToGoProperties)
 			value.Subscribe.Message.Schema.Properties = newProps
 			a.addEvent(value.Subscribe.Message)
 		}
@@ -98,7 +100,7 @@ func (a *asyncApiSpec) convertToUsableStruct() {
 			if value.Publish.Message.Ref != nil {
 				value.Publish.Message.findMessageByReferenceInComponents(a.Components)
 			}
-			newProps = a.rewriteProperties(value.Publish.Message.Schema.Properties, value.Publish.Message.Schema.Required)
+			newProps = a.rewriteProperties(value.Publish.Message.Schema.Properties, value.Publish.Message.Schema.Required, a.rewriteToGoProperties)
 			value.Publish.Message.Schema.Properties = newProps
 			a.addEvent(value.Publish.Message)
 		}
@@ -111,65 +113,155 @@ func (a *asyncApiSpec) convertToUsableStruct() {
 	a.Channels = newChannels
 }
 
-func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, required []string) map[string]Property {
+func (a *asyncApiSpec) convertToJavaSpec() {
+	newChannels := make(map[string]Channel)
+	for key, value := range a.Channels {
+		newKey := strcase.ToCamel(strings.ToLower(key))
+		var newProps map[string]Property
+		if value.Subscribe != nil {
+			if value.Subscribe.Message.Ref != nil {
+				value.Subscribe.Message.findMessageByReferenceInComponents(a.Components)
+			}
+			newProps = a.rewriteProperties(value.Subscribe.Message.Schema.Properties, value.Subscribe.Message.Schema.Required, a.rewriteToJavaProperties)
+			value.Subscribe.Message.Schema.Properties = newProps
+			a.addEvent(value.Subscribe.Message)
+		}
+		if value.Publish != nil {
+			if value.Publish.Message.Ref != nil {
+				value.Publish.Message.findMessageByReferenceInComponents(a.Components)
+			}
+			newProps = a.rewriteProperties(value.Publish.Message.Schema.Properties, value.Publish.Message.Schema.Required, a.rewriteToJavaProperties)
+			value.Publish.Message.Schema.Properties = newProps
+			a.addEvent(value.Publish.Message)
+		}
+
+		value.Name = key
+		a.Channels[key] = value
+
+		newChannels[newKey] = a.Channels[key]
+	}
+	a.Channels = newChannels
+}
+
+func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, required []string, conversationFunc propertyRewriteFunc) map[string]Property {
 	newProps := make(map[string]Property)
 	props := properties
 	for propertyName, property := range props {
-		fm := "%s%s `json:\"%s%s\"`" //propertyName optionalPointer type jsonName optionalOmitEmpty
-		typ := ""
-		pointer := ""
-		jsonName := propertyName
-		omit := ""
-		if !slices.Contains(required, propertyName) {
-			pointer = "*"
-			omit = ",omitempty"
+		if property.Object != nil {
+			objProps := a.rewriteProperties(property.Object.Properties, property.Object.Required, conversationFunc)
+			property.Object.Properties = objProps
 		}
-		switch property.Type {
-		case "integer":
-			typ = "int"
-		case "boolean":
-			typ = "bool"
-		case "string":
-			if property.Format == "date-time" {
-				typ = "time.Time"
-			} else {
-				typ = property.Type
-			}
-
-		case "object":
-			if property.AdditionalProperties.Type == "string" {
-				typ = "map[string]string"
-			} else if property.Object != nil {
-				typ = "struct {"
-				for key, val := range property.Object.Properties {
-					typ = typ + "\n\t\t" + strcase.ToCamel(key) + " " + val.Type + "`json:\"" + strcase.ToLowerCamel(key) + "\"`"
-				}
-				typ = typ + "\n\t}"
-			}
-		case "array":
-			typ = typ + "[]"
-			if property.Items.Type == "string" {
-				switch property.Items.Format {
-				case "binary":
-					typ = "[]byte"
-				default:
-					typ = "string"
-				}
-			}
-
-		default:
-			typ = property.Type
-		}
-		wholeString := fmt.Sprintf(fm, pointer, typ, jsonName, omit)
-		newPropertyName := strcase.ToCamel(propertyName)
-		newProps[newPropertyName] = Property{
-			Type:    wholeString,
-			Format:  property.Format,
-			Minimum: property.Minimum,
-		}
-
+		conversationFunc(propertyName, required, property, newProps)
 	}
 	return newProps
+}
+
+func (a *asyncApiSpec) rewriteToGoProperties(propertyName string, required []string, property Property, newProps map[string]Property) {
+	fm := "%s%s `json:\"%s%s\"`" //optionalPointer type jsonName optionalOmitEmpty
+	typ := ""
+	pointer := ""
+	jsonName := propertyName
+	omit := ""
+	if !slices.Contains(required, propertyName) {
+		pointer = "*"
+		omit = ",omitempty"
+	}
+	switch property.Type {
+	case "integer":
+		typ = "int"
+	case "boolean":
+		typ = "bool"
+	case "string":
+		if property.Format == "date-time" {
+			typ = "time.Time"
+		} else {
+			typ = property.Type
+		}
+
+	case "object":
+		if property.AdditionalProperties.Type == "string" {
+			typ = "map[string]string"
+		} else if property.Object != nil {
+			typ = *property.Object.Name
+		}
+	case "array":
+		typ = "[]"
+		if property.Items.Type == "string" {
+			switch property.Items.Format {
+			case "binary":
+				typ = typ + "[]byte"
+			default:
+				typ = typ + "string"
+			}
+		}
+
+	default:
+		typ = property.Type
+	}
+	wholeString := fmt.Sprintf(fm, pointer, typ, jsonName, omit)
+	newPropertyName := strcase.ToCamel(propertyName)
+	newProps[newPropertyName] = Property{
+		Type:    wholeString,
+		Format:  property.Format,
+		Minimum: property.Minimum,
+		Object:  property.Object,
+	}
+}
+
+func (a *asyncApiSpec) rewriteToJavaProperties(propertyName string, required []string, property Property, newProps map[string]Property) {
+	fm := "%s %s" //@NotNull type
+	typ := ""
+	annotation := ""
+	if slices.Contains(required, propertyName) {
+		if property.Type == "string" {
+			annotation = "@NotBlank"
+		} else {
+			annotation = "@NotNull"
+		}
+	}
+	switch property.Type {
+	case "integer":
+		typ = "int"
+	case "boolean":
+		typ = "Boolean"
+	case "string":
+		switch property.Format {
+		case "date-time":
+			typ = "OffsetDateTime"
+		case "email":
+			annotation = annotation + " @Email"
+		default:
+			typ = "String"
+		}
+
+	case "object":
+		if property.AdditionalProperties.Type == "string" {
+			typ = "Map<String,String>"
+		} else if property.Object != nil {
+			typ = *property.Object.Name
+		}
+	case "array":
+		typ = "List<"
+		if property.Items.Type == "string" {
+			switch property.Items.Format {
+			case "binary":
+				typ = typ + "File>"
+			default:
+				typ = typ + "String>"
+			}
+		}
+
+	default:
+		typ = property.Type
+	}
+	wholeString := fmt.Sprintf(fm, annotation, typ)
+	newPropertyName := strcase.ToCamel(propertyName)
+	newProps[newPropertyName] = Property{
+		Type:    wholeString,
+		Format:  property.Format,
+		Minimum: property.Minimum,
+		Object:  property.Object,
+	}
 }
 
 func (a *asyncApiSpec) addEvent(message Message) {
@@ -220,9 +312,9 @@ func (p *Payload) findPropertyByReferenceInComponents(propertyKey string, proper
 	propertyName := referenceSlice[len(referenceSlice)-1]
 	propertyFromComponents := components.Schemas[propertyName]
 	//todo ist hier jetzt hart gesetzt...
-	prop := Property{
-		Type:   "object",
-		Object: &propertyFromComponents,
-	}
+
+	prop := p.Properties[propertyKey]
+	prop.Object = &propertyFromComponents
+	prop.Type = propertyFromComponents.Type
 	p.Properties[propertyKey] = prop
 }

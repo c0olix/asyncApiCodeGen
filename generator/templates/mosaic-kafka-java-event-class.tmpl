@@ -1,0 +1,34 @@
+package de.hochbahn.events;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class {{.Name}} {
+	{{- range $propertyName, $property := .Schema.Properties}}
+	private {{$property.Type}} {{$propertyName -}}
+	{{- end}}
+
+	{{- range $propertyName, $property := .Schema.Properties}}
+  		{{- if $property.Object}}
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  class {{$property.Object.Name}} {
+  			{{- range $objPropertyName, $objProperty := $property.Object.Properties}}
+  	private {{$objProperty.Type}} {{$objPropertyName -}}
+  			{{- end}}
+  }
+  		{{- end}}
+  	{{- end}}
+}

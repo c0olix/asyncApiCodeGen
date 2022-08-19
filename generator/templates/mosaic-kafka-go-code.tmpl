@@ -24,6 +24,17 @@ type {{$event.Name}} struct {
 }
 {{ end}}
 
+{{ range $event := .Events }}
+	{{- range $propertyName, $property := $event.Schema.Properties}}
+		{{- if $property.Object}}
+type {{$property.Object.Name}} struct {
+			{{- range $objPropertyName, $objProperty := $property.Object.Properties}}
+	{{$objPropertyName}} {{$objProperty.Type -}}
+			{{- end}}
+}
+		{{- end}}
+	{{- end}}
+{{ end}}
 type ConsumerInterface interface {
 {{ range $channelName, $channel := .Channels }}
 	{{- if $channel.Publish}}
