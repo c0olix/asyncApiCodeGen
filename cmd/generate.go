@@ -56,8 +56,8 @@ func init() {
 
 func generateMosaicKafkaGoCode(path string, out string) {
 	logger.Debug("generate called")
-	gen := generator.NewMosaicKafkaGoCodeGenerator()
-	out, err := gen.Generate(path, out)
+	gen := generator.NewMosaicKafkaGoCodeGenerator(path)
+	out, err := gen.Generate(out)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}
@@ -66,8 +66,8 @@ func generateMosaicKafkaGoCode(path string, out string) {
 
 func generateMosaicKafkaJavaCode(path string, out string) {
 	logger.Debug("generate called")
-	gen := generator.NewMosaicKafkaJavaCodeGenerator()
-	out, err := gen.Generate(path, out)
+	gen := generator.NewMosaicKafkaJavaCodeGenerator(path)
+	out, err := gen.Generate(out)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}

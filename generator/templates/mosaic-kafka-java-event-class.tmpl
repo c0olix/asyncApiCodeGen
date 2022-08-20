@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
+{{- range $import := .Imports }}
+{{$import}}
+{{- end}}
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -13,12 +15,12 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class {{.Name}} {
-	{{- range $propertyName, $property := .Schema.Properties}}
+public class {{.Message.Name}} {
+	{{- range $propertyName, $property := .Message.Schema.Properties}}
 	private {{$property.Type}} {{$propertyName -}}
 	{{- end}}
 
-	{{- range $propertyName, $property := .Schema.Properties}}
+	{{- range $propertyName, $property := .Message.Schema.Properties}}
   		{{- if $property.Object}}
   @Data
   @Builder
