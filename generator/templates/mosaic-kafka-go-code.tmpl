@@ -3,7 +3,9 @@ package events
 import (
 	"context"
 	"git.hochbahn.cloud/mosaic/libs/go-microservice-starter-commons.git/messaging"
-	"time"
+	{{- range $import := .Imports }}
+	"{{$import}}"
+	{{- end}}
 )
 
 const (
@@ -17,15 +19,15 @@ type KafkaTopicConfig struct {
 	ReplicationFactor int
 }
 {{ range $event := .Events }}
-type {{$event.Name}} struct {
-	{{- range $propertyName, $property := $event.Schema.Properties}}
+type {{$event.Message.Name}} struct {
+	{{- range $propertyName, $property := $event.Message.Schema.Properties}}
 	{{$propertyName}} {{$property.Type -}}
 	{{- end}}
 }
 {{ end}}
 
 {{ range $event := .Events }}
-	{{- range $propertyName, $property := $event.Schema.Properties}}
+	{{- range $propertyName, $property := $event.Message.Schema.Properties}}
 		{{- if $property.Object}}
 type {{$property.Object.Name}} struct {
 			{{- range $objPropertyName, $objProperty := $property.Object.Properties}}
