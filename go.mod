@@ -1,6 +1,6 @@
 module github.com/c0olix/asyncApiCodeGen
 
-go 1.18
+go 1.19
 
 require (
 	git.hochbahn.cloud/mosaic/libs/go-microservice-starter-commons.git v1.44.0
