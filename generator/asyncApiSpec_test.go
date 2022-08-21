@@ -95,6 +95,37 @@ func TestPayload_findReferenceInComponentsWithPorpertyWithRef(t *testing.T) {
 	assert.Equal(t, "string", p.Properties["AnObject"].Object.Properties["AField"].Type)
 }
 
+func TestRewriteProperties(t *testing.T) {
+	a := asyncApiSpec{}
+
+	properties := make(map[string]Property)
+	properties["anInteger"] = Property{
+		Type: "integer",
+	}
+	properties["aBoolean"] = Property{
+		Type: "boolean",
+	}
+	required := []string{
+		"aBoolean",
+	}
+
+	propertyRewriteFunc := func(propertyName string, required []string, property Property, newProps map[string]Property) {
+		if propertyName == "anInteger" {
+			newProps[propertyName] = Property{
+				Type: "*int",
+			}
+		} else {
+			newProps[propertyName] = Property{
+				Type: "bool",
+			}
+		}
+	}
+
+	newProps := a.rewriteProperties(properties, required, propertyRewriteFunc)
+	assert.Equal(t, "*int", newProps["anInteger"].Type)
+	assert.Equal(t, "bool", newProps["aBoolean"].Type)
+}
+
 func strp(input string) *string {
 	return &input
 }
