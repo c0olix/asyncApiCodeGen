@@ -6,9 +6,8 @@ import (
 )
 
 func TestCodeGenerator_loadAsyncApiSpec(t *testing.T) {
-	gen := MosaicKafkaGoCodeGenerator{}
 
-	spec := gen.loadAsyncApiSpec("./test-spec/test-spec.yaml")
+	spec := loadAsyncApiSpec("./test-spec/test-spec.yaml")
 	assert.Equal(t, "2.2.0", spec.AsyncApi)
 	assert.Equal(t, "Example", spec.Info.Title)
 	assert.Equal(t, "0.1.0", spec.Info.Version)
