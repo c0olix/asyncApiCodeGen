@@ -14,10 +14,11 @@ var logger = logging.NewLogger()
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "used to generate code from async api spec",
-	Long: `used to generate code from async api spec. For example:
+	Short: "Used to generate code from async api spec",
+	Long: `Used to generate code from async api spec. First argument is the spec and the second is the path to the output. 
 	
-	asyncApiCodeGen generate bla.yaml
+	For example:
+	asyncApiCodeGen generate in_spec.yaml out.go
  `,
 	Run: func(cmd *cobra.Command, args []string) {
 		langFlag, err := cmd.Flags().GetString("lang")
