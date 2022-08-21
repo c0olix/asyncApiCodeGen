@@ -1,0 +1,9 @@
+package de.hochbahn.events;
+
+import de.hochbahn.events.{{.Message.Name}};
+
+import javax.validation.constraints.NotNull;
+
+public interface I{{.Message.Name}} {
+    void produce{{.Message.Name}}(@NotNull {{.Message.Name}} {{.Message.Name}})
+}

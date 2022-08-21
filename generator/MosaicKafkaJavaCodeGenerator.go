@@ -12,8 +12,9 @@ import (
 )
 
 type MosaicKafkaJavaCodeGenerator struct {
-	spec               *javaSpec
-	eventClassTemplate *template.Template
+	spec                      *javaSpec
+	eventClassTemplate        *template.Template
+	producerInterfaceTemplate *template.Template
 }
 type javaSpec struct {
 	Events   []javaSpecMessage
@@ -84,11 +85,13 @@ func containsJavaSpecMessage(messages []javaSpecMessage, msg javaSpecMessage) bo
 
 func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string) MosaicKafkaJavaCodeGenerator {
 	tmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-java-event-class.tmpl"))
+	producerInterfaceTmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-java-producer-interface.tmpl"))
 	spec := loadAsyncApiSpec(asyncApiSpecPath)
 	javaSpec := NewJavaSpecFromApiSpec(spec)
 	return MosaicKafkaJavaCodeGenerator{
-		spec:               javaSpec,
-		eventClassTemplate: tmpl,
+		spec:                      javaSpec,
+		eventClassTemplate:        tmpl,
+		producerInterfaceTemplate: producerInterfaceTmpl,
 	}
 }
 
@@ -96,21 +99,52 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 
 	for _, event := range c.spec.Events {
 		event.Imports = c.spec.Imports
-		var tpl bytes.Buffer
-		f, err := os.Create(out + "/" + event.Message.Name + ".java")
+		s, err := c.createEventClass(out, event)
 		if err != nil {
-			return "", err
+			return s, err
 		}
-		err = c.eventClassTemplate.Execute(&tpl, event)
-		if err != nil {
-			return "", err
-		}
-		_, err = f.Write(tpl.Bytes())
-		if err != nil {
-			return "", err
+		if event.Typ == "subscribe" {
+			_, err = c.createEventProducer(out, event)
+			if err != nil {
+				return s, err
+			}
 		}
 	}
 
+	return "", nil
+}
+
+func (c MosaicKafkaJavaCodeGenerator) createEventClass(out string, event javaSpecMessage) (string, error) {
+	var tpl bytes.Buffer
+	f, err := os.Create(out + "/" + event.Message.Name + ".java")
+	if err != nil {
+		return "", err
+	}
+	err = c.eventClassTemplate.Execute(&tpl, event)
+	if err != nil {
+		return "", err
+	}
+	_, err = f.Write(tpl.Bytes())
+	if err != nil {
+		return "", err
+	}
+	return "", nil
+}
+
+func (c MosaicKafkaJavaCodeGenerator) createEventProducer(out string, event javaSpecMessage) (string, error) {
+	var tpl bytes.Buffer
+	f, err := os.Create(out + "/I" + event.Message.Name + "Producer.java")
+	if err != nil {
+		return "", err
+	}
+	err = c.producerInterfaceTemplate.Execute(&tpl, event)
+	if err != nil {
+		return "", err
+	}
+	_, err = f.Write(tpl.Bytes())
+	if err != nil {
+		return "", err
+	}
 	return "", nil
 }
 
