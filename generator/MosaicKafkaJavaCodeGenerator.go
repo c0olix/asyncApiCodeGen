@@ -24,6 +24,7 @@ type javaSpec struct {
 }
 
 type javaSpecMessage struct {
+	Name    string
 	Message Message
 	Typ     string
 	Imports []string
@@ -62,6 +63,7 @@ func (g *javaSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType str
 	newProps = a.rewriteProperties(value.Schema.Properties, value.Schema.Required, g.rewriteToJavaProperties)
 	value.Schema.Properties = newProps
 	goMsg := javaSpecMessage{
+		Name:    strcase.ToLowerCamel(value.Name),
 		Message: value,
 		Typ:     msgType,
 	}
@@ -85,9 +87,9 @@ func containsJavaSpecMessage(messages []javaSpecMessage, msg javaSpecMessage) bo
 }
 
 func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string) MosaicKafkaJavaCodeGenerator {
-	tmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-java-event-class.tmpl"))
-	producerInterfaceTmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-java-producer-interface.tmpl"))
-	consumerInterfaceTmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-java-consumer-interface.tmpl"))
+	tmpl := template.Must(template.ParseFS(templateFiles, "templates/mosaic-kafka-java-event-class.tmpl"))
+	producerInterfaceTmpl := template.Must(template.ParseFS(templateFiles, "templates/mosaic-kafka-java-producer-interface.tmpl"))
+	consumerInterfaceTmpl := template.Must(template.ParseFS(templateFiles, "templates/mosaic-kafka-java-consumer-interface.tmpl"))
 	spec := loadAsyncApiSpec(asyncApiSpecPath)
 	javaSpec := NewJavaSpecFromApiSpec(spec)
 	return MosaicKafkaJavaCodeGenerator{
@@ -99,7 +101,10 @@ func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string) MosaicKafkaJavaCod
 }
 
 func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
-
+	err := os.MkdirAll(out, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 	for _, event := range c.spec.Events {
 		event.Imports = c.spec.Imports
 		s, err := c.createEventClass(out, event)
@@ -197,6 +202,8 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 			a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
 		case "email":
 			annotation = annotation + " @Email"
+			typ = "String"
+			a.Imports = append(a.Imports, "import javax.validation.constraints.Email;")
 		default:
 			typ = "String"
 		}
@@ -222,8 +229,7 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 		typ = property.Type
 	}
 	wholeString := fmt.Sprintf(fm, annotation, typ)
-	newPropertyName := strcase.ToCamel(propertyName)
-	newProps[newPropertyName] = Property{
+	newProps[propertyName] = Property{
 		Type:    wholeString,
 		Format:  property.Format,
 		Minimum: property.Minimum,

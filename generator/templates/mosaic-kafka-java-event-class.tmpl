@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class {{.Message.Name}} {
 	{{- range $propertyName, $property := .Message.Schema.Properties}}
-	private {{$property.Type}} {{$propertyName -}}
+	private {{$property.Type}} {{$propertyName -}};
 	{{- end}}
 
 	{{- range $propertyName, $property := .Message.Schema.Properties}}
@@ -26,9 +26,9 @@ public class {{.Message.Name}} {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  class {{$property.Object.Name}} {
+  static class {{$property.Object.Name}} {
   			{{- range $objPropertyName, $objProperty := $property.Object.Properties}}
-  	private {{$objProperty.Type}} {{$objPropertyName -}}
+  	private {{$objProperty.Type}} {{$objPropertyName -}};
   			{{- end}}
   }
   		{{- end}}

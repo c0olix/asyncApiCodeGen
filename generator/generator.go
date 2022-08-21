@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"embed"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -9,6 +10,9 @@ import (
 type Generator interface {
 	Generate(asyncApiSpecPath string, out string) (string, error)
 }
+
+//go:embed templates
+var templateFiles embed.FS
 
 func loadAsyncApiSpec(asyncApiSpecPath string) asyncApiSpec {
 	yamlFile, err := os.ReadFile(asyncApiSpecPath)
