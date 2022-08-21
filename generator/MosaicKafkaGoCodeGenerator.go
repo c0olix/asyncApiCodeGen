@@ -140,7 +140,7 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string) MosaicKafkaGoCodeGen
 	spec := loadAsyncApiSpec(asyncApiSpecPath)
 	goSpec := NewGoSpecFromApiSpec(spec)
 
-	tmpl := template.Must(template.ParseFiles("generator/templates/mosaic-kafka-go-code.tmpl"))
+	tmpl := template.Must(template.ParseFS(templateFiles, "templates/mosaic-kafka-go-code.tmpl"))
 	return MosaicKafkaGoCodeGenerator{
 		template: tmpl,
 		spec:     goSpec,
