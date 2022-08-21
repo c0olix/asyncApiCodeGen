@@ -7,13 +7,7 @@ import (
 type propertyRewriteFunc func(propertyName string, required []string, property Property, newProps map[string]Property)
 
 type asyncApiSpec struct {
-	Config struct {
-		Imports struct {
-			Time bool
-		}
-	} `yaml:"-"`
-	Events   []Message `yaml:"-"`
-	AsyncApi string    `yaml:"asyncapi"`
+	AsyncApi string `yaml:"asyncapi"`
 	Info     struct {
 		Title   string `yaml:"title"`
 		Version string `yaml:"version"`
@@ -128,8 +122,6 @@ func (p *Payload) findPropertyByReferenceInComponents(propertyKey string, proper
 	referenceSlice := strings.Split(propertyRef, "/")
 	propertyName := referenceSlice[len(referenceSlice)-1]
 	propertyFromComponents := components.Schemas[propertyName]
-	//todo ist hier jetzt hart gesetzt...
-
 	prop := p.Properties[propertyKey]
 	prop.Object = &propertyFromComponents
 	prop.Type = propertyFromComponents.Type
