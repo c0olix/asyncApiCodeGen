@@ -1,0 +1,7 @@
+package de.hochbahn.events;
+
+import de.hochbahn.events.{{.Message.Name}};
+
+public interface I{{.Message.Name}}Consumer {
+	Consumer<Message<{{.Message.Name}}>> consume{{.Message.Name}}()
+}
