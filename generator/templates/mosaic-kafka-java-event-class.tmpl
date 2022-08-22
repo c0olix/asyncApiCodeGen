@@ -32,5 +32,18 @@ public class {{.Message.Name}} {
   			{{- end}}
   }
   		{{- end}}
+			{{- if $property.Items}}
+				{{- if $property.Items.Object}}
+	@Data
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
+	static class {{$property.Items.Object.Name}} {
+	{{- range $objPropertyName, $objProperty := $property.Items.Object.Properties}}
+		private {{$objProperty.Type}} {{$objPropertyName -}};
+	{{- end}}
+	}
+        {{- end}}
+      {{- end}}
   	{{- end}}
 }
