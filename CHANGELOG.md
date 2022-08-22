@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.0
+2022-08-22
+
+### Features
+
+- array items may have a reference string (cef5a70bc20ac55a1a4dcd8fa4ebb0681f87c26b)
+
 ## 0.1.2
 2022-08-22
 
