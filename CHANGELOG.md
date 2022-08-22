@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.1
+2022-08-22
+
+### Fixes
+
+- type conversation based on map (04781f80a2d16b7750d9f66f0b0be1e6af18f001)
+
 ## 0.3.0
 2022-08-22
 
