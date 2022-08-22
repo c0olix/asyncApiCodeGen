@@ -2,6 +2,12 @@
 
 <!--- next entry here -->
 
+## 0.1.2
+2022-08-22
+
+### Fixes
+- correct format (441ce8e1b24551762142ca0b0578c40eec741c2c)
+
 ## 0.1.1
 2022-08-21
 
