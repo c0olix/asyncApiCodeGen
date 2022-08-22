@@ -79,8 +79,10 @@ func (g *goSpec) rewriteToGoProperties(propertyName string, required []string, p
 		omit = ",omitempty"
 	}
 	switch property.Type {
-	case "integer":
+	case "int32":
 		typ = "int"
+	case "int64":
+		typ = "int64"
 	case "boolean":
 		typ = "bool"
 	case "string":

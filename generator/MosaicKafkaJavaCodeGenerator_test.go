@@ -26,21 +26,21 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 			name: "required integer",
 			in: in{
 				prop: Property{
-					Type: "integer",
+					Type: "int32",
 				},
 				required: []string{"aProperty"},
 			},
-			out: "@NotNull int",
+			out: "@NotNull Integer",
 		},
 		{
 			name: "optional integer",
 			in: in{
 				prop: Property{
-					Type: "integer",
+					Type: "int32",
 				},
 				required: []string{},
 			},
-			out: " int",
+			out: " Integer",
 		},
 		{
 			name: "optional bool",
