@@ -2,3 +2,4 @@
 /.idea/
 /generator/test-spec/account-service.yaml
 /gensrc/
+/generator/test-spec/identity-service.yaml

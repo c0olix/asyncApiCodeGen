@@ -74,8 +74,10 @@ type Components struct {
 }
 
 type Item struct {
-	Type   string `yaml:"type"`
-	Format string `yaml:"format"`
+	Type   string  `yaml:"type"`
+	Format string  `yaml:"format"`
+	Ref    *string `yaml:"$ref"`
+	Object *Payload
 }
 
 func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, required []string, conversationFunc propertyRewriteFunc) map[string]Property {
@@ -85,6 +87,11 @@ func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, require
 		if property.Object != nil {
 			objProps := a.rewriteProperties(property.Object.Properties, property.Object.Required, conversationFunc)
 			property.Object.Properties = objProps
+		} else if property.Items != nil {
+			if property.Items.Object != nil {
+				objProps := a.rewriteProperties(property.Items.Object.Properties, property.Items.Object.Required, conversationFunc)
+				property.Items.Object.Properties = objProps
+			}
 		}
 		conversationFunc(propertyName, required, property, newProps)
 	}
@@ -115,7 +122,24 @@ func (p *Payload) findPayloadByReferenceInComponents(components Components) {
 		if prop.Ref != nil {
 			p.findPropertyByReferenceInComponents(key, *prop.Ref, components)
 		}
+		if prop.Items != nil {
+			if prop.Items.Ref != nil {
+				p.findItemByReferenceInComponents(key, *prop.Items.Ref, components)
+			}
+		}
 	}
+}
+
+func (p *Payload) findItemByReferenceInComponents(propertyKey string, propertyRef string, components Components) {
+	referenceSlice := strings.Split(propertyRef, "/")
+	propertyName := referenceSlice[len(referenceSlice)-1]
+	propertyFromComponents := components.Schemas[propertyName]
+
+	prop := p.Properties[propertyKey]
+	items := prop.Items
+	items.Type = "object"
+	items.Object = &propertyFromComponents
+	//prop.Items = items
 }
 
 func (p *Payload) findPropertyByReferenceInComponents(propertyKey string, propertyRef string, components Components) {
