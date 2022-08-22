@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.2
+2022-08-22
+
+### Fixes
+
+- array object conversation (de7d2e591aae86cd09f9a303a21391efbc8f8925)
+
 ## 0.3.1
 2022-08-22
 
