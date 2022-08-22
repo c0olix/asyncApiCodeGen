@@ -184,7 +184,7 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 	typ := ""
 	annotation := ""
 	if slices.Contains(required, propertyName) {
-		if property.Type == "string" {
+		if property.Type == "string" && property.Format != "binary" {
 			annotation = "@NotBlank"
 		} else {
 			annotation = "@NotNull"
@@ -206,6 +206,8 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 			annotation = annotation + " @Email"
 			typ = "String"
 			a.Imports = append(a.Imports, "import javax.validation.constraints.Email;")
+		case "binary":
+			typ = "File"
 		default:
 			typ = "String"
 		}
@@ -218,13 +220,16 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 		}
 	case "array":
 		typ = "List<"
-		if property.Items.Type == "string" {
+		switch property.Items.Type {
+		case "string":
 			switch property.Items.Format {
 			case "binary":
 				typ = typ + "File>"
 			default:
 				typ = typ + "String>"
 			}
+		case "object":
+			typ = typ + *property.Items.Object.Name + ">"
 		}
 
 	default:
@@ -236,5 +241,6 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 		Format:  property.Format,
 		Minimum: property.Minimum,
 		Object:  property.Object,
+		Items:   property.Items,
 	}
 }
