@@ -129,6 +129,23 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 			},
 			out: "*[][]byte `json:\"aProperty,omitempty\"`",
 		},
+		{
+			name: "optional array object",
+			in: in{
+				prop: Property{
+					Type: "array",
+					Items: &Item{
+						Type: "object",
+						Object: &Payload{
+							Name: strp("TestItem"),
+							Type: "string",
+						},
+					},
+				},
+				required: nil,
+			},
+			out: "*[]TestItem `json:\"aProperty,omitempty\"`",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

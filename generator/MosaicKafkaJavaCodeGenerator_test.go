@@ -129,6 +129,23 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 			},
 			out: " List<File>",
 		},
+		{
+			name: "optional array object",
+			in: in{
+				prop: Property{
+					Type: "array",
+					Items: &Item{
+						Type: "object",
+						Object: &Payload{
+							Name: strp("TestItem"),
+							Type: "string",
+						},
+					},
+				},
+				required: nil,
+			},
+			out: " List<TestItem>",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
