@@ -33,12 +33,12 @@ func TestPayload_findReferenceInComponents(t *testing.T) {
 	properties := make(map[string]Property)
 	properties["email"] = Property{
 		Type:    "string",
-		Format:  "email",
-		Minimum: 0,
+		Format:  strp("email"),
+		Minimum: ip(0),
 	}
 	payloads["TestPayload"] = Payload{
 		Type:                 "object",
-		AdditionalProperties: false,
+		AdditionalProperties: bp(false),
 		Properties:           properties,
 		Ref:                  nil,
 	}
@@ -54,7 +54,7 @@ func TestPayload_findReferenceInComponents(t *testing.T) {
 	assert.Equal(t, "object", p.Type)
 	assert.Equal(t, properties, p.Properties)
 	assert.Equal(t, strp("#/components/schemas/TestPayload"), p.Ref)
-	assert.Equal(t, false, p.AdditionalProperties)
+	assert.Equal(t, bp(false), p.AdditionalProperties)
 }
 
 func TestPayload_findReferenceInComponentsWithPorpertyWithRef(t *testing.T) {
@@ -65,7 +65,7 @@ func TestPayload_findReferenceInComponentsWithPorpertyWithRef(t *testing.T) {
 	}
 	payloads["TestPayload"] = Payload{
 		Type:                 "object",
-		AdditionalProperties: false,
+		AdditionalProperties: bp(false),
 		Properties:           properties,
 		Ref:                  nil,
 	}
@@ -75,7 +75,7 @@ func TestPayload_findReferenceInComponentsWithPorpertyWithRef(t *testing.T) {
 	}
 	payloads["AnObject"] = Payload{
 		Type:                 "object",
-		AdditionalProperties: false,
+		AdditionalProperties: bp(false),
 		Properties:           propertiesForObject,
 		Ref:                  nil,
 	}
@@ -91,7 +91,7 @@ func TestPayload_findReferenceInComponentsWithPorpertyWithRef(t *testing.T) {
 	assert.Equal(t, "object", p.Type)
 	assert.Equal(t, properties, p.Properties)
 	assert.Equal(t, strp("#/components/schemas/TestPayload"), p.Ref)
-	assert.Equal(t, false, p.AdditionalProperties)
+	assert.Equal(t, bp(false), p.AdditionalProperties)
 	assert.Equal(t, "string", p.Properties["AnObject"].Object.Properties["AField"].Type)
 }
 
@@ -109,7 +109,7 @@ func TestRewriteProperties(t *testing.T) {
 		"aBoolean",
 	}
 
-	propertyRewriteFunc := func(propertyName string, required []string, property Property, newProps map[string]Property) {
+	propertyRewriteFunc := func(propertyName string, required *[]string, property Property, newProps map[string]Property) {
 		if propertyName == "anInteger" {
 			newProps[propertyName] = Property{
 				Type: "*int",
@@ -121,11 +121,15 @@ func TestRewriteProperties(t *testing.T) {
 		}
 	}
 
-	newProps := a.rewriteProperties(properties, required, propertyRewriteFunc)
+	newProps := a.rewriteProperties(properties, &required, propertyRewriteFunc)
 	assert.Equal(t, "*int", newProps["anInteger"].Type)
 	assert.Equal(t, "bool", newProps["aBoolean"].Type)
 }
 
-func strp(input string) *string {
-	return &input
+func bp(in bool) *bool {
+	return &in
+}
+
+func ip(in int) *int {
+	return &in
 }

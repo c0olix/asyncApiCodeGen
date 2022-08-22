@@ -12,6 +12,20 @@ import (
 	"text/template"
 )
 
+var typeConversionGoMap = map[string]string{
+	"int32":     "int",
+	"int64":     "int64",
+	"string":    "string",
+	"email":     "string",
+	"boolean":   "bool",
+	"float":     "float32",
+	"double":    "float64",
+	"binary":    "[]byte",
+	"date":      "time.Time",
+	"date-time": "time.Time",
+	"password":  "password",
+}
+
 type goSpec struct {
 	Events   []goSpecMessage
 	Imports  []string
@@ -68,53 +82,49 @@ func (g *goSpec) addEvent(message goSpecMessage) {
 	}
 }
 
-func (g *goSpec) rewriteToGoProperties(propertyName string, required []string, property Property, newProps map[string]Property) {
+func (g *goSpec) rewriteToGoProperties(propertyName string, required *[]string, property Property, newProps map[string]Property) {
 	fm := "%s%s `json:\"%s%s\"`" //optionalPointer type jsonName optionalOmitEmpty
 	typ := ""
 	pointer := ""
 	jsonName := propertyName
 	omit := ""
-	if !slices.Contains(required, propertyName) {
+	if required != nil {
+		if !slices.Contains(*required, propertyName) {
+			pointer = "*"
+			omit = ",omitempty"
+		}
+	} else {
 		pointer = "*"
 		omit = ",omitempty"
 	}
 	switch property.Type {
-	case "int32":
-		typ = "int"
-	case "int64":
-		typ = "int64"
-	case "boolean":
-		typ = "bool"
-	case "string":
-		if property.Format == "date-time" {
-			typ = "time.Time"
-			g.Imports = append(g.Imports, "time")
-		} else {
-			typ = property.Type
-		}
-
 	case "object":
-		if property.AdditionalProperties.Type == "string" {
-			typ = "map[string]string"
-		} else if property.Object != nil {
+		if property.Object != nil {
 			typ = *property.Object.Name
+		} else if property.AdditionalProperties.Type == "string" {
+			typ = "map[string]string"
 		}
 	case "array":
 		typ = "[]"
-		switch property.Items.Type {
-		case "string":
-			switch property.Items.Format {
-			case "binary":
-				typ = typ + "[]byte"
-			default:
-				typ = typ + "string"
+		if property.Items.Format != nil {
+			typ = typ + typeConversionGoMap[*property.Items.Format]
+			if strings.Contains(typ, "date") {
+				g.Imports = append(g.Imports, "time")
 			}
-		case "object":
+		} else if property.Type == "object" {
 			typ = typ + *property.Items.Object.Name
+		} else {
+			typ = typ + typeConversionGoMap[property.Items.Type]
 		}
-
 	default:
-		typ = property.Type
+		if property.Format != nil {
+			typ = typeConversionGoMap[*property.Format]
+			if strings.Contains(typ, "date") {
+				g.Imports = append(g.Imports, "time")
+			}
+		} else {
+			typ = typeConversionGoMap[property.Type]
+		}
 	}
 	wholeString := fmt.Sprintf(fm, pointer, typ, jsonName, omit)
 	newPropertyName := strcase.ToCamel(propertyName)
