@@ -10,7 +10,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 	newProps := make(map[string]Property)
 	type in struct {
 		prop     Property
-		required []string
+		required *[]string
 	}
 
 	nestedObjProps := make(map[string]Property)
@@ -28,7 +28,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 				prop: Property{
 					Type: "int32",
 				},
-				required: []string{"aProperty"},
+				required: &[]string{"aProperty"},
 			},
 			out: "int `json:\"aProperty\"`",
 		},
@@ -38,7 +38,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 				prop: Property{
 					Type: "int32",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*int `json:\"aProperty,omitempty\"`",
 		},
@@ -48,7 +48,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 				prop: Property{
 					Type: "boolean",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*bool `json:\"aProperty,omitempty\"`",
 		},
@@ -57,9 +57,9 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 			in: in{
 				prop: Property{
 					Type:   "string",
-					Format: "date-time",
+					Format: strp("date-time"),
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*time.Time `json:\"aProperty,omitempty\"`",
 		},
@@ -69,7 +69,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 				prop: Property{
 					Type: "string",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*string `json:\"aProperty,omitempty\"`",
 		},
@@ -78,11 +78,11 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 			in: in{
 				prop: Property{
 					Type: "object",
-					AdditionalProperties: AdditionalProperty{
+					AdditionalProperties: &AdditionalProperty{
 						Type: "string",
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*map[string]string `json:\"aProperty,omitempty\"`",
 		},
@@ -98,7 +98,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 					},
 				},
 
-				required: []string{},
+				required: nil,
 			},
 			out: "*NestedObject `json:\"aProperty,omitempty\"`",
 		},
@@ -111,7 +111,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 						Type: "string",
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*[]string `json:\"aProperty,omitempty\"`",
 		},
@@ -122,10 +122,10 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 					Type: "array",
 					Items: &Item{
 						Type:   "string",
-						Format: "binary",
+						Format: strp("binary"),
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: "*[][]byte `json:\"aProperty,omitempty\"`",
 		},

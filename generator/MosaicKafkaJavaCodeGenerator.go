@@ -11,6 +11,20 @@ import (
 	"text/template"
 )
 
+var typeConversionJavaMap = map[string]string{
+	"int32":     "Integer",
+	"int64":     "Long",
+	"string":    "String",
+	"email":     "String",
+	"boolean":   "Boolean",
+	"float":     "Float",
+	"double":    "Double",
+	"binary":    "File",
+	"date":      "OffsetDateTime",
+	"date-time": "OffsetDateTime",
+	"password":  "password",
+}
+
 type MosaicKafkaJavaCodeGenerator struct {
 	spec                      *javaSpec
 	eventClassTemplate        *template.Template
@@ -179,61 +193,48 @@ func (c MosaicKafkaJavaCodeGenerator) createEventConsumer(out string, event java
 	return "", nil
 }
 
-func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []string, property Property, newProps map[string]Property) {
+func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]string, property Property, newProps map[string]Property) {
 	fm := "%s %s" //@NotNull type
 	typ := ""
 	annotation := ""
-	if slices.Contains(required, propertyName) {
-		if property.Type == "string" && property.Format != "binary" {
-			annotation = "@NotBlank"
-		} else {
-			annotation = "@NotNull"
+	if required != nil {
+		if slices.Contains(*required, propertyName) {
+			if property.Type == "string" && property.Format != nil && *property.Format != "binary" {
+				annotation = "@NotBlank"
+			} else {
+				annotation = "@NotNull"
+			}
 		}
 	}
-	switch property.Type {
-	case "int32":
-		typ = "Integer"
-	case "int64":
-		typ = "Long"
-	case "boolean":
-		typ = "Boolean"
-	case "string":
-		switch property.Format {
-		case "date-time":
-			typ = "OffsetDateTime"
-			a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
-		case "email":
-			annotation = annotation + " @Email"
-			typ = "String"
-			a.Imports = append(a.Imports, "import javax.validation.constraints.Email;")
-		case "binary":
-			typ = "File"
-		default:
-			typ = "String"
-		}
 
+	switch property.Type {
 	case "object":
-		if property.AdditionalProperties.Type == "string" {
-			typ = "Map<String,String>"
-		} else if property.Object != nil {
+		if property.Object != nil {
 			typ = *property.Object.Name
+		} else if property.AdditionalProperties.Type == "string" {
+			typ = "Map<String,String>"
 		}
 	case "array":
 		typ = "List<"
-		switch property.Items.Type {
-		case "string":
-			switch property.Items.Format {
-			case "binary":
-				typ = typ + "File>"
-			default:
-				typ = typ + "String>"
+		if property.Items.Format != nil {
+			typ = typ + typeConversionJavaMap[*property.Items.Format] + ">"
+			if strings.Contains(typ, "date") {
+				a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
 			}
-		case "object":
+		} else if property.Type == "object" {
 			typ = typ + *property.Items.Object.Name + ">"
+		} else {
+			typ = typ + typeConversionJavaMap[property.Items.Type] + ">"
 		}
-
 	default:
-		typ = property.Type
+		if property.Format != nil {
+			typ = typeConversionJavaMap[*property.Format]
+			if strings.Contains(typ, "date") {
+				a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
+			}
+		} else {
+			typ = typeConversionJavaMap[property.Type]
+		}
 	}
 	wholeString := fmt.Sprintf(fm, annotation, typ)
 	newProps[propertyName] = Property{

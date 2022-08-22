@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type propertyRewriteFunc func(propertyName string, required []string, property Property, newProps map[string]Property)
+type propertyRewriteFunc func(propertyName string, required *[]string, property Property, newProps map[string]Property)
 
 type asyncApiSpec struct {
 	AsyncApi string `yaml:"asyncapi"`
@@ -47,18 +47,18 @@ type Message struct {
 type Payload struct {
 	Name                 *string `yaml:"title"`
 	Type                 string  `yaml:"type"`
-	AdditionalProperties bool    `yaml:"additionalProperties"`
+	AdditionalProperties *bool   `yaml:"additionalProperties"`
 	Properties           map[string]Property
-	Ref                  *string  `yaml:"$ref"`
-	Required             []string `yaml:"required"`
+	Ref                  *string   `yaml:"$ref"`
+	Required             *[]string `yaml:"required"`
 }
 
 type Property struct {
-	Type                 string             `yaml:"type"`
-	Format               string             `yaml:"format"`
-	Minimum              int                `yaml:"minimum"`
-	AdditionalProperties AdditionalProperty `yaml:"additionalProperties"`
-	Ref                  *string            `yaml:"$ref"`
+	Type                 string              `yaml:"type"`
+	Format               *string             `yaml:"format"`
+	Minimum              *int                `yaml:"minimum"`
+	AdditionalProperties *AdditionalProperty `yaml:"additionalProperties"`
+	Ref                  *string             `yaml:"$ref"`
 	Object               *Payload
 	Items                *Item `yaml:"items"`
 }
@@ -75,12 +75,12 @@ type Components struct {
 
 type Item struct {
 	Type   string  `yaml:"type"`
-	Format string  `yaml:"format"`
+	Format *string `yaml:"format"`
 	Ref    *string `yaml:"$ref"`
 	Object *Payload
 }
 
-func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, required []string, conversationFunc propertyRewriteFunc) map[string]Property {
+func (a *asyncApiSpec) rewriteProperties(properties map[string]Property, required *[]string, conversationFunc propertyRewriteFunc) map[string]Property {
 	newProps := make(map[string]Property)
 	props := properties
 	for propertyName, property := range props {

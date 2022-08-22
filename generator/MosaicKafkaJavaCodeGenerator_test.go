@@ -10,7 +10,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 	newProps := make(map[string]Property)
 	type in struct {
 		prop     Property
-		required []string
+		required *[]string
 	}
 
 	nestedObjProps := make(map[string]Property)
@@ -28,7 +28,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				prop: Property{
 					Type: "int32",
 				},
-				required: []string{"aProperty"},
+				required: &[]string{"aProperty"},
 			},
 			out: "@NotNull Integer",
 		},
@@ -38,7 +38,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				prop: Property{
 					Type: "int32",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " Integer",
 		},
@@ -48,7 +48,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				prop: Property{
 					Type: "boolean",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " Boolean",
 		},
@@ -57,9 +57,9 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 			in: in{
 				prop: Property{
 					Type:   "string",
-					Format: "date-time",
+					Format: strp("date-time"),
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " OffsetDateTime",
 		},
@@ -69,7 +69,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				prop: Property{
 					Type: "string",
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " String",
 		},
@@ -78,11 +78,11 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 			in: in{
 				prop: Property{
 					Type: "object",
-					AdditionalProperties: AdditionalProperty{
+					AdditionalProperties: &AdditionalProperty{
 						Type: "string",
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " Map<String,String>",
 		},
@@ -98,7 +98,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 					},
 				},
 
-				required: []string{},
+				required: nil,
 			},
 			out: " NestedObject",
 		},
@@ -111,7 +111,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 						Type: "string",
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " List<String>",
 		},
@@ -122,10 +122,10 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 					Type: "array",
 					Items: &Item{
 						Type:   "string",
-						Format: "binary",
+						Format: strp("binary"),
 					},
 				},
-				required: []string{},
+				required: nil,
 			},
 			out: " List<File>",
 		},
