@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.0
+2022-08-22
+
+### Features
+
+- java items can also have ref string (4f30cfc882ccd466357db12bbe0f81497fef25f5)
+
 ## 0.2.0
 2022-08-22
 
