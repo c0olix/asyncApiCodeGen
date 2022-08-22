@@ -26,7 +26,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 			name: "required integer",
 			in: in{
 				prop: Property{
-					Type: "integer",
+					Type: "int32",
 				},
 				required: []string{"aProperty"},
 			},
@@ -36,7 +36,7 @@ func Test_goSpec_rewriteToGoProperties(t *testing.T) {
 			name: "optional integer",
 			in: in{
 				prop: Property{
-					Type: "integer",
+					Type: "int32",
 				},
 				required: []string{},
 			},

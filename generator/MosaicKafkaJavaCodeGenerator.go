@@ -191,8 +191,10 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required []strin
 		}
 	}
 	switch property.Type {
-	case "integer":
-		typ = "int"
+	case "int32":
+		typ = "Integer"
+	case "int64":
+		typ = "Long"
 	case "boolean":
 		typ = "Boolean"
 	case "string":
