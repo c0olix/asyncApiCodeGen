@@ -42,6 +42,16 @@ type {{$property.Object.Name}} struct {
 			{{- end}}
 }
 		{{- end}}
+    {{- if $property.Items}}
+        {{- if $property.Items.Object}}
+			// {{$property.Items.Object.Name}} Nested object for {{$event.Message.Name}} type
+			type {{$property.Items.Object.Name}} struct {
+      {{- range $objPropertyName, $objProperty := $property.Items.Object.Properties}}
+          {{$objPropertyName}} {{$objProperty.Type -}}
+      {{- end}}
+			}
+		{{- end}}
+    {{- end}}
 	{{- end}}
 {{ end}}
 // ConsumerInterface Interface for all events to be consumed by application

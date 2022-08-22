@@ -101,13 +101,16 @@ func (g *goSpec) rewriteToGoProperties(propertyName string, required []string, p
 		}
 	case "array":
 		typ = "[]"
-		if property.Items.Type == "string" {
+		switch property.Items.Type {
+		case "string":
 			switch property.Items.Format {
 			case "binary":
 				typ = typ + "[]byte"
 			default:
 				typ = typ + "string"
 			}
+		case "object":
+			typ = typ + *property.Items.Object.Name
 		}
 
 	default:
@@ -120,6 +123,7 @@ func (g *goSpec) rewriteToGoProperties(propertyName string, required []string, p
 		Format:  property.Format,
 		Minimum: property.Minimum,
 		Object:  property.Object,
+		Items:   property.Items,
 	}
 }
 
