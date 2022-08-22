@@ -221,7 +221,7 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]stri
 			if strings.Contains(typ, "date") {
 				a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
 			}
-		} else if property.Type == "object" {
+		} else if property.Items.Type == "object" {
 			typ = typ + *property.Items.Object.Name + ">"
 		} else {
 			typ = typ + typeConversionJavaMap[property.Items.Type] + ">"
