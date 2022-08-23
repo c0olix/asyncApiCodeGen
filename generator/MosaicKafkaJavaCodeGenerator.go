@@ -38,10 +38,11 @@ type javaSpec struct {
 }
 
 type javaSpecMessage struct {
-	Name    string
-	Message Message
-	Typ     string
-	Imports []string
+	Name        string
+	Message     Message
+	Typ         string
+	OperationId string
+	Imports     []string
 }
 
 func NewJavaSpecFromApiSpec(api asyncApiSpec) *javaSpec {
@@ -56,9 +57,17 @@ func (g *javaSpec) convertToJavaSpec(a asyncApiSpec) {
 		newKey := strcase.ToCamel(strings.ToLower(key))
 
 		if value.Subscribe != nil {
-			g.convertAndAddEvent(a, value.Subscribe.Message, "subscribe")
+			if value.Subscribe.OperationId == nil {
+				opId := "produce" + value.Subscribe.Message.Name
+				value.Subscribe.OperationId = &opId
+			}
+			g.convertAndAddEvent(a, value.Subscribe.Message, "subscribe", *value.Subscribe.OperationId)
 		} else if value.Publish != nil {
-			g.convertAndAddEvent(a, value.Publish.Message, "publish")
+			if value.Publish.OperationId == nil {
+				opId := "consume" + value.Subscribe.Message.Name
+				value.Publish.OperationId = &opId
+			}
+			g.convertAndAddEvent(a, value.Publish.Message, "publish", *value.Publish.OperationId)
 		}
 
 		value.Name = key
@@ -69,7 +78,7 @@ func (g *javaSpec) convertToJavaSpec(a asyncApiSpec) {
 	g.Channels = newChannels
 }
 
-func (g *javaSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType string) {
+func (g *javaSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType string, opId string) {
 	var newProps map[string]Property
 	imports := []string{}
 	if value.Ref != nil {
@@ -83,10 +92,11 @@ func (g *javaSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType str
 	}
 
 	goMsg := javaSpecMessage{
-		Name:    strcase.ToLowerCamel(value.Name),
-		Message: value,
-		Typ:     msgType,
-		Imports: imports,
+		Name:        strcase.ToLowerCamel(value.Name),
+		Message:     value,
+		Typ:         msgType,
+		Imports:     imports,
+		OperationId: opId,
 	}
 	g.addEvent(goMsg)
 }

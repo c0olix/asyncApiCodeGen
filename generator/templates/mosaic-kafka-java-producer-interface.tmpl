@@ -3,5 +3,5 @@ package de.hochbahn.events;
 import javax.validation.constraints.NotNull;
 
 public interface I{{.Message.Name}}Producer {
-    void produce{{.Message.Name}}(@NotNull {{.Message.Name}} {{.Name}});
+    void {{.OperationId}}(@NotNull {{.Message.Name}} {{.Name}});
 }
