@@ -7,6 +7,7 @@ import (
 	"github.com/c0olix/asyncApiCodeGen/generator"
 	"github.com/c0olix/asyncApiCodeGen/logging"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var logger = logging.NewLogger()
@@ -56,13 +57,19 @@ func init() {
 }
 
 func generateMosaicKafkaGoCode(path string, out string) {
-	logger.Debug("generate called")
 	gen := generator.NewMosaicKafkaGoCodeGenerator(path)
-	out, err := gen.Generate(out)
+	output, err := gen.Generate()
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}
-	logger.Debug(out)
+	f, err := os.Create(out)
+	if err != nil {
+		logger.Fatalf("unable to create output file: %v", err)
+	}
+	_, err = f.Write(output)
+	if err != nil {
+		logger.Fatalf("unable to write to output file: %v", err)
+	}
 }
 
 func generateMosaicKafkaJavaCode(path string, out string) {

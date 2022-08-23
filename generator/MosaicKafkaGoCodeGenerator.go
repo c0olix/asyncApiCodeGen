@@ -7,7 +7,6 @@ import (
 	"github.com/iancoleman/strcase"
 	"go/format"
 	"golang.org/x/exp/slices"
-	"os"
 	"strings"
 	"text/template"
 )
@@ -181,23 +180,15 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string) MosaicKafkaGoCodeGen
 	}
 }
 
-func (c MosaicKafkaGoCodeGenerator) Generate(out string) (string, error) {
+func (c MosaicKafkaGoCodeGenerator) Generate() ([]byte, error) {
 	var tpl bytes.Buffer
-	f, err := os.Create(out)
+	err := c.template.Execute(&tpl, c.spec)
 	if err != nil {
-		return "", err
-	}
-	err = c.template.Execute(&tpl, c.spec)
-	if err != nil {
-		return "", err
+		return nil, err
 	}
 	p, err := format.Source(tpl.Bytes())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	_, err = f.Write(p)
-	if err != nil {
-		return "", err
-	}
-	return "", nil
+	return p, nil
 }
