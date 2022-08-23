@@ -71,17 +71,68 @@ func (g *javaSpec) convertToJavaSpec(a asyncApiSpec) {
 
 func (g *javaSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType string) {
 	var newProps map[string]Property
+	imports := []string{}
 	if value.Ref != nil {
 		value.findMessageByReferenceInComponents(a.Components)
 	}
 	newProps = a.rewriteProperties(value.Schema.Properties, value.Schema.Required, g.rewriteToJavaProperties)
 	value.Schema.Properties = newProps
+	for _, prop := range value.Schema.Properties {
+		imports = g.checkTypesToImport(prop, imports)
+		imports = g.checkAnnotationToImport(prop, imports)
+	}
+
 	goMsg := javaSpecMessage{
 		Name:    strcase.ToLowerCamel(value.Name),
 		Message: value,
 		Typ:     msgType,
+		Imports: imports,
 	}
 	g.addEvent(goMsg)
+}
+
+func (g *javaSpec) checkAnnotationToImport(prop Property, imports []string) []string {
+	if strings.Contains(prop.Type, "@NotNull") {
+		toImport := "import javax.validation.constraints.NotNull;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	}
+	if strings.Contains(prop.Type, "@NotBlank") {
+		toImport := "import javax.validation.constraints.NotBlank;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	}
+	if strings.Contains(prop.Type, "@Email") {
+		toImport := "import javax.validation.constraints.Email;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	}
+
+	return imports
+}
+
+func (g *javaSpec) checkTypesToImport(prop Property, imports []string) []string {
+	switch {
+	case strings.Contains(prop.Type, "OffsetDateTime"):
+		toImport := "import java.time.OffsetDateTime;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	case strings.Contains(prop.Type, "List"):
+		toImport := "import java.util.List;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	case strings.Contains(prop.Type, "Map"):
+		toImport := "import java.util.Map;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	}
+	return imports
 }
 
 func (g *javaSpec) addEvent(message javaSpecMessage) {
@@ -120,7 +171,6 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 		return "", err
 	}
 	for _, event := range c.spec.Events {
-		event.Imports = c.spec.Imports
 		s, err := c.createEventClass(out, event)
 		if err != nil {
 			return s, err
@@ -199,8 +249,18 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]stri
 	annotation := ""
 	if required != nil {
 		if slices.Contains(*required, propertyName) {
-			if property.Type == "string" && property.Format != nil && *property.Format != "binary" {
-				annotation = "@NotBlank"
+			if property.Type == "string" {
+				if property.Format != nil {
+					form := *property.Format
+					switch form {
+					case "binary":
+						annotation = "@NotNull"
+					case "email":
+						annotation = "@Email"
+					default:
+						annotation = "@NotBlank"
+					}
+				}
 			} else {
 				annotation = "@NotNull"
 			}
@@ -218,9 +278,6 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]stri
 		typ = "List<"
 		if property.Items.Format != nil {
 			typ = typ + typeConversionJavaMap[*property.Items.Format] + ">"
-			if strings.Contains(typ, "date") {
-				a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
-			}
 		} else if property.Items.Type == "object" {
 			typ = typ + *property.Items.Object.Name + ">"
 		} else {
@@ -229,14 +286,11 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]stri
 	default:
 		if property.Format != nil {
 			typ = typeConversionJavaMap[*property.Format]
-			if strings.Contains(typ, "date") {
-				a.Imports = append(a.Imports, "import java.time.OffsetDateTime;")
-			}
 		} else {
 			typ = typeConversionJavaMap[property.Type]
 		}
 	}
-	wholeString := fmt.Sprintf(fm, annotation, typ)
+	wholeString := strings.Trim(fmt.Sprintf(fm, annotation, typ), " ")
 	newProps[propertyName] = Property{
 		Type:    wholeString,
 		Format:  property.Format,
