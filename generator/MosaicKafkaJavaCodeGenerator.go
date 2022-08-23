@@ -181,20 +181,34 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 		return "", err
 	}
 	for _, event := range c.spec.Events {
-		s, err := c.createEventClass(out, event)
+		output, err := c.createEventClass(event)
 		if err != nil {
-			return s, err
+			return "", err
+		}
+		err = c.writeBytesToFile(out+"/"+event.Message.Name+".java", output)
+		if err != nil {
+			return "", err
 		}
 		if event.Typ == "subscribe" {
-			_, err = c.createEventProducer(out, event)
+			producer, err := c.createEventProducer(event)
 			if err != nil {
-				return s, err
+				return "", err
+			}
+			filename := out + "/I" + event.Message.Name + "Producer.java"
+			err = c.writeBytesToFile(filename, producer)
+			if err != nil {
+				return "", err
 			}
 		}
 		if event.Typ == "publish" {
-			_, err = c.createEventConsumer(out, event)
+			consumer, err := c.createEventConsumer(event)
 			if err != nil {
-				return s, err
+				return "", err
+			}
+			filename := out + "/I" + event.Message.Name + "Consumer.java"
+			err = c.writeBytesToFile(filename, consumer)
+			if err != nil {
+				return "", err
 			}
 		}
 	}
@@ -202,55 +216,47 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 	return "", nil
 }
 
-func (c MosaicKafkaJavaCodeGenerator) createEventClass(out string, event javaSpecMessage) (string, error) {
-	var tpl bytes.Buffer
-	f, err := os.Create(out + "/" + event.Message.Name + ".java")
+func (c MosaicKafkaJavaCodeGenerator) writeBytesToFile(filename string, producer []byte) error {
+	f, err := os.Create(filename)
 	if err != nil {
-		return "", err
+		return err
 	}
-	err = c.eventClassTemplate.Execute(&tpl, event)
+	_, err = f.Write(producer)
 	if err != nil {
-		return "", err
+		return err
 	}
-	_, err = f.Write(tpl.Bytes())
-	if err != nil {
-		return "", err
-	}
-	return "", nil
+	return nil
 }
 
-func (c MosaicKafkaJavaCodeGenerator) createEventProducer(out string, event javaSpecMessage) (string, error) {
+func (c MosaicKafkaJavaCodeGenerator) createEventClass(event javaSpecMessage) ([]byte, error) {
 	var tpl bytes.Buffer
-	f, err := os.Create(out + "/I" + event.Message.Name + "Producer.java")
+	err := c.eventClassTemplate.Execute(&tpl, event)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	err = c.producerInterfaceTemplate.Execute(&tpl, event)
-	if err != nil {
-		return "", err
-	}
-	_, err = f.Write(tpl.Bytes())
-	if err != nil {
-		return "", err
-	}
-	return "", nil
+	return tpl.Bytes(), nil
 }
 
-func (c MosaicKafkaJavaCodeGenerator) createEventConsumer(out string, event javaSpecMessage) (string, error) {
+func (c MosaicKafkaJavaCodeGenerator) createEventProducer(event javaSpecMessage) ([]byte, error) {
 	var tpl bytes.Buffer
-	f, err := os.Create(out + "/I" + event.Message.Name + "Consumer.java")
+
+	err := c.producerInterfaceTemplate.Execute(&tpl, event)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	err = c.consumerInterfaceTemplate.Execute(&tpl, event)
+
+	return tpl.Bytes(), nil
+}
+
+func (c MosaicKafkaJavaCodeGenerator) createEventConsumer(event javaSpecMessage) ([]byte, error) {
+	var tpl bytes.Buffer
+
+	err := c.consumerInterfaceTemplate.Execute(&tpl, event)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	_, err = f.Write(tpl.Bytes())
-	if err != nil {
-		return "", err
-	}
-	return "", nil
+
+	return tpl.Bytes(), nil
 }
 
 func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]string, property Property, newProps map[string]Property) {
