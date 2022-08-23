@@ -30,11 +30,13 @@ type Channel struct {
 }
 
 type Subscribe struct {
-	Message Message
+	Message     Message
+	OperationId *string `yaml:"operationId"`
 }
 
 type Publish struct {
-	Message Message
+	Message     Message
+	OperationId *string `yaml:"operationId"`
 }
 
 type Message struct {

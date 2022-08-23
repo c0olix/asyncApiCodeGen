@@ -58,15 +58,15 @@ type {{$property.Object.Name}} struct {
 type ConsumerInterface interface {
 {{ range $channelName, $channel := .Channels }}
 	{{- if $channel.Publish}}
-	Consume{{$channelName}}Event(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
+	{{$channel.Publish.OperationId}}(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
 	{{- end}}
 {{- end}}
 }
 // ProducerInterface Interface for all events to be produced by application
 type ProducerInterface interface {
-{{- range $channelName, $channel := .Channels }}
-	{{- if $channel.Subscribe}}
-	Produce{{$channelName}}Event(ctx context.Context, event {{$channelName}}Event, header ...messaging.KafkaHeader) error
+{{ range $event := .Events }}
+    {{- if eq $event.Typ "subscribe"}}
+	{{$event.OperationId}}(ctx context.Context, event {{$event.Message.Name}}, header ...messaging.KafkaHeader) error
 	{{- end}}
 {{- end}}
 }
@@ -110,39 +110,39 @@ func NewDefaultConsumer(manager messaging.KafkaManager, config KafkaTopicConfig)
 
 // NewDefaultProducer wires all needed dependencies to create a DefaultProducer
 func NewDefaultProducer(manager messaging.KafkaManager, config KafkaTopicConfig) (*DefaultProducer, error) {
-{{- range $channelName, $channel := .Channels }}
-	{{- if $channel.Subscribe}}
-	{{$channelName}}Topic, err := manager.CreateTopic({{$channelName}}TopicName, config.TopicGroup, config.NumPartitions, config.ReplicationFactor)
+{{- range $event := .Events }}
+    {{- if eq $event.Typ "subscribe"}}
+	{{$event.Topic}}Topic, err := manager.CreateTopic({{$event.Topic}}TopicName, config.TopicGroup, config.NumPartitions, config.ReplicationFactor)
 	if err != nil {
 		return nil, err
 	}
 	{{- end}}
 {{- end}}
 	return &DefaultProducer{
-{{- range $channelName, $channel := .Channels }}
-	{{- if $channel.Subscribe}}
-		{{$channelName}}Topic: {{$channelName}}Topic,
+{{- range $event := .Events }}
+    {{- if eq $event.Typ "subscribe"}}
+		{{$event.Topic}}Topic: {{$event.Topic}}Topic,
 	{{- end}}
 {{- end}}
 	}, nil
 }
 
-{{ range $channelName, $channel := .Channels }}
-{{- if $channel.Publish}}
-// Consume{{$channelName}}Event is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
-// to consume the {{$channelName}}Event.
-func (d DefaultConsumer) Consume{{$channelName}}Event(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction) {
-	d.{{$channelName}}Topic.Consume({{$channelName}}Event{}, callback, errorCallback)
+{{ range $event := .Events }}
+{{- if eq $event.Typ "publish"}}
+// {{$event.OperationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
+// to consume the {{$event.Message.Name}} Event.
+func (d DefaultConsumer) {{$event.OperationId}} (callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction) {
+	d.{{$event.Topic}}Topic.Consume({{$event.Message.Name}}{}, callback, errorCallback)
 }
 {{- end}}
 {{ end}}
 
-{{ range $channelName, $channel := .Channels }}
-{{- if $channel.Subscribe}}
-// Produce{{$channelName}}Event is the go kafka mosaic style flavored implementation of the ProducerInterface registered on DefaultConsumer
-// to produce the {{$channelName}}Event.
-func (d DefaultProducer) Produce{{$channelName}}Event(ctx context.Context, event {{$channelName}}Event, header ...messaging.KafkaHeader) error {
-	err := d.{{$channelName}}Topic.Produce(ctx, event, header...)
+{{ range $event := .Events }}
+    {{- if eq $event.Typ "subscribe"}}
+//{{$event.OperationId}} is the go kafka mosaic style flavored implementation of the ProducerInterface registered on DefaultConsumer
+// to produce the {{$event.Message.Name}} Event.
+func (d DefaultProducer) {{$event.OperationId}}(ctx context.Context, event {{$event.Message.Name}}, header ...messaging.KafkaHeader) error {
+	err := d.{{$event.Topic}}Topic.Produce(ctx, event, header...)
 	if err != nil {
 		return err
 	}
