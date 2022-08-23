@@ -2,6 +2,7 @@ package generator
 
 import (
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -40,7 +41,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " Integer",
+			out: "Integer",
 		},
 		{
 			name: "optional bool",
@@ -50,7 +51,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " Boolean",
+			out: "Boolean",
 		},
 		{
 			name: "optional string date-time",
@@ -61,7 +62,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " OffsetDateTime",
+			out: "OffsetDateTime",
 		},
 		{
 			name: "optional string",
@@ -71,7 +72,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " String",
+			out: "String",
 		},
 		{
 			name: "optional map string",
@@ -84,7 +85,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " Map<String,String>",
+			out: "Map<String,String>",
 		},
 		{
 			name: "optional object",
@@ -100,7 +101,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 
 				required: nil,
 			},
-			out: " NestedObject",
+			out: "NestedObject",
 		},
 		{
 			name: "optional array string",
@@ -113,7 +114,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " List<String>",
+			out: "List<String>",
 		},
 		{
 			name: "optional array string binary",
@@ -127,7 +128,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " List<File>",
+			out: "List<File>",
 		},
 		{
 			name: "optional array object",
@@ -144,7 +145,7 @@ func Test_javaSpec_rewriteToJavaProperties(t *testing.T) {
 				},
 				required: nil,
 			},
-			out: " List<TestItem>",
+			out: "List<TestItem>",
 		},
 	}
 	for _, tt := range tests {
@@ -183,4 +184,62 @@ func Test_javaSpec_convertToJavaSpec(t *testing.T) {
 	assert.Equal(t, "a test event", g.Channels["TestChan"].Subscribe.Message.Description)
 	assert.Equal(t, "object", g.Channels["TestChan"].Subscribe.Message.Schema.Type)
 	assert.Equal(t, "string", g.Channels["TestChan"].Subscribe.Message.Schema.Properties["testProp"].Type)
+}
+
+func TestMosaicKafkaJavaCodeGenerator_createEventClass(t *testing.T) {
+	expected1, err := os.ReadFile("./test-spec/expected/out/UserDeletedEvent.java")
+	assert.Nil(t, err)
+
+	expected2, err := os.ReadFile("./test-spec/expected/out/UserLockedEvent.java")
+	assert.Nil(t, err)
+
+	gen := NewMosaicKafkaJavaCodeGenerator("./test-spec/test-spec.yaml")
+	var spec1 javaSpecMessage
+	var spec2 javaSpecMessage
+	if gen.spec.Events[0].Name == "userDeletedEvent" {
+		spec1 = gen.spec.Events[0]
+		spec2 = gen.spec.Events[1]
+	} else {
+		spec1 = gen.spec.Events[1]
+		spec2 = gen.spec.Events[0]
+	}
+	class, err := gen.createEventClass(spec1)
+	assert.Nil(t, err)
+	assert.Equal(t, string(expected1), string(class))
+
+	class2, err := gen.createEventClass(spec2)
+	assert.Nil(t, err)
+	assert.Equal(t, string(expected2), string(class2))
+}
+
+func TestMosaicKafkaJavaCodeGenerator_createEventProducer(t *testing.T) {
+	expected, err := os.ReadFile("./test-spec/expected/out/IUserLockedEventProducer.java")
+	assert.Nil(t, err)
+
+	gen := NewMosaicKafkaJavaCodeGenerator("./test-spec/test-spec.yaml")
+	var spec1 javaSpecMessage
+	if gen.spec.Events[0].Name == "userLockedEvent" {
+		spec1 = gen.spec.Events[0]
+	} else {
+		spec1 = gen.spec.Events[1]
+	}
+	producer, err := gen.createEventProducer(spec1)
+	assert.Nil(t, err)
+	assert.Equal(t, string(expected), string(producer))
+}
+
+func TestMosaicKafkaJavaCodeGenerator_createEventConsumer(t *testing.T) {
+	expected, err := os.ReadFile("./test-spec/expected/out/IUserDeletedEventConsumer.java")
+	assert.Nil(t, err)
+
+	gen := NewMosaicKafkaJavaCodeGenerator("./test-spec/test-spec.yaml")
+	var spec1 javaSpecMessage
+	if gen.spec.Events[0].Name == "userDeletedEvent" {
+		spec1 = gen.spec.Events[0]
+	} else {
+		spec1 = gen.spec.Events[1]
+	}
+	consumer, err := gen.createEventConsumer(spec1)
+	assert.Nil(t, err)
+	assert.Equal(t, string(expected), string(consumer))
 }
