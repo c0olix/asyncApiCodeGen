@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.3
+2022-08-23
+
+### Fixes
+
+- respect OperationId (49c78bcad240b84c39688e3ab1ba5e7cd38a1c3a)
+
 ## 0.3.2
 2022-08-22
 
