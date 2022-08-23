@@ -2,6 +2,7 @@ package generator
 
 import (
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -183,4 +184,14 @@ func Test_goSpec_convertToGoSpec(t *testing.T) {
 	assert.Equal(t, "a test event", g.Channels["TestChan"].Subscribe.Message.Description)
 	assert.Equal(t, "object", g.Channels["TestChan"].Subscribe.Message.Schema.Type)
 	assert.Equal(t, "string", g.Channels["TestChan"].Subscribe.Message.Schema.Properties["testProp"].Type)
+}
+
+func TestMosaicKafkaGoCodeGenerator_Generate(t *testing.T) {
+	expected, err := os.ReadFile("./test-spec/expected/out.gen.go")
+	assert.Nil(t, err)
+
+	gen := NewMosaicKafkaGoCodeGenerator("./test-spec/test-spec.yaml")
+	out, err := gen.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, string(expected), string(out))
 }

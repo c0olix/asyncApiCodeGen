@@ -9,65 +9,45 @@ servers:
     description: This is "My Company" broker.
 channels:
   USER_DELETED:
-    subscribe:
+    publish:
+      operationId: consumeUserDeletedEvent
       message:
-        description: An event describing that a user just signed up.
-        payload:
-          type: object
-          additionalProperties: false
-          properties:
-            fullName:
-              type: string
-            email:
-              type: string
-              format: email
-            age:
-              type: integer
-              minimum: 18
+        $ref: "#/components/messages/UserDeletedEvent"
   USER_LOCKED:
-    publish:
-      message:
-        description: An event describing that a user just signed up.
-        payload:
-          type: object
-          additionalProperties: false
-          properties:
-            fullName:
-              type: string
-            email:
-              type: string
-              format: email
-            age:
-              type: integer
-              minimum: 18
-  USER_SIGNUP:
     subscribe:
+      operationId: produceUserLockedEvent
       message:
-        description: An event describing that a user just signed up.
-        payload:
-          type: object
-          additionalProperties: false
-          properties:
-            fullName:
-              type: string
-            email:
-              type: string
-              format: email
-            age:
-              type: integer
-              minimum: 18
-    publish:
-      message:
-        description: An event describing that a user just signed up.
-        payload:
-          type: object
-          additionalProperties: false
-          properties:
-            fullName:
-              type: string
-            email:
-              type: string
-              format: email
-            age:
-              type: integer
-              minimum: 18
+        $ref: "#/components/messages/UserLockedEvent"
+components:
+  messages:
+    UserDeletedEvent:
+      name: UserDeletedEvent
+      description: A brief description for the UserDeletedEvent
+      payload:
+        $ref: "#/components/schemas/UserDeletedPayload"
+    UserLockedEvent:
+      name: UserLockedEvent
+      description: A brief description for the UserLockedEvent
+      payload:
+        $ref: "#/components/schemas/UserLockedPayload"
+  schemas:
+    UserDeletedPayload:
+      type: object
+      title: UserDeletedPayload
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          format: email
+    UserLockedPayload:
+      type: object
+      title: UserDeletedPayload
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          format: email
+        reason:
+          type: string
