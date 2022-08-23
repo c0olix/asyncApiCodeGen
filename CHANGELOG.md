@@ -2,6 +2,14 @@
 
 <!--- next entry here -->
 
+## 0.4.0
+2022-08-23
+
+### Features
+
+- import for java (e186c97f53ef1302ce1f9881e7229f3302fb246f)
+- respect opId for java (6c01f53d72dc7f3d58c5ff43db8f4395e98d9813)
+
 ## 0.3.3
 2022-08-23
 
