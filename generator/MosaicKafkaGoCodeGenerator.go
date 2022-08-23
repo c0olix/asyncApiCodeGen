@@ -33,8 +33,10 @@ type goSpec struct {
 }
 
 type goSpecMessage struct {
-	Message Message
-	Typ     string
+	Message     Message
+	Typ         string
+	OperationId string
+	Topic       string
 }
 
 func NewGoSpecFromApiSpec(api asyncApiSpec) *goSpec {
@@ -49,9 +51,23 @@ func (g *goSpec) convertToGoSpec(a asyncApiSpec) {
 		newKey := strcase.ToCamel(strings.ToLower(key))
 
 		if value.Subscribe != nil {
-			g.convertAndAddEvent(a, value.Subscribe.Message, "subscribe")
+			if value.Subscribe.OperationId == nil {
+				opId := "Produce" + value.Subscribe.Message.Name
+				value.Subscribe.OperationId = &opId
+			} else {
+				opId := strcase.ToCamel(*value.Subscribe.OperationId)
+				value.Subscribe.OperationId = &opId
+			}
+			g.convertAndAddEvent(a, value.Subscribe.Message, "subscribe", *value.Subscribe.OperationId, newKey)
 		} else if value.Publish != nil {
-			g.convertAndAddEvent(a, value.Publish.Message, "publish")
+			if value.Publish.OperationId == nil {
+				opId := "Consume" + value.Publish.Message.Name
+				value.Publish.OperationId = &opId
+			} else {
+				opId := strcase.ToCamel(*value.Publish.OperationId)
+				value.Publish.OperationId = &opId
+			}
+			g.convertAndAddEvent(a, value.Publish.Message, "publish", *value.Publish.OperationId, newKey)
 		}
 
 		value.Name = key
@@ -62,7 +78,7 @@ func (g *goSpec) convertToGoSpec(a asyncApiSpec) {
 	g.Channels = newChannels
 }
 
-func (g *goSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType string) {
+func (g *goSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType string, opId string, topicName string) {
 	var newProps map[string]Property
 	if value.Ref != nil {
 		value.findMessageByReferenceInComponents(a.Components)
@@ -70,8 +86,10 @@ func (g *goSpec) convertAndAddEvent(a asyncApiSpec, value Message, msgType strin
 	newProps = a.rewriteProperties(value.Schema.Properties, value.Schema.Required, g.rewriteToGoProperties)
 	value.Schema.Properties = newProps
 	goMsg := goSpecMessage{
-		Message: value,
-		Typ:     msgType,
+		Message:     value,
+		Typ:         msgType,
+		OperationId: opId,
+		Topic:       topicName,
 	}
 	g.addEvent(goMsg)
 }
