@@ -73,11 +73,9 @@ func generateMosaicKafkaGoCode(path string, out string) {
 }
 
 func generateMosaicKafkaJavaCode(path string, out string) {
-	logger.Debug("generate called")
 	gen := generator.NewMosaicKafkaJavaCodeGenerator(path)
 	out, err := gen.Generate(out)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}
-	logger.Debug(out)
 }

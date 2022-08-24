@@ -125,19 +125,26 @@ func (g *javaSpec) checkAnnotationToImport(prop Property, imports []string) []st
 }
 
 func (g *javaSpec) checkTypesToImport(prop Property, imports []string) []string {
-	switch {
-	case strings.Contains(prop.Type, "OffsetDateTime"):
+	if strings.Contains(prop.Type, "OffsetDateTime") {
 		toImport := "import java.time.OffsetDateTime;"
 		if !slices.Contains(imports, toImport) {
 			imports = append(imports, toImport)
 		}
-	case strings.Contains(prop.Type, "List"):
+	}
+	if strings.Contains(prop.Type, "List") {
 		toImport := "import java.util.List;"
 		if !slices.Contains(imports, toImport) {
 			imports = append(imports, toImport)
 		}
-	case strings.Contains(prop.Type, "Map"):
+	}
+	if strings.Contains(prop.Type, "Map") {
 		toImport := "import java.util.Map;"
+		if !slices.Contains(imports, toImport) {
+			imports = append(imports, toImport)
+		}
+	}
+	if strings.Contains(prop.Type, "File") {
+		toImport := "import java.io.File;"
 		if !slices.Contains(imports, toImport) {
 			imports = append(imports, toImport)
 		}
@@ -186,6 +193,22 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 			return "", err
 		}
 		err = c.writeBytesToFile(out+"/"+event.Message.Name+".java", output)
+		for _, prop := range event.Message.Schema.Properties {
+			if prop.Object != nil {
+				err := c.createObjectClass(out, prop)
+				if err != nil {
+					return "", err
+				}
+			} else if prop.Items != nil {
+				if prop.Items.Object != nil {
+					err := c.createItemClass(out, prop)
+					if err != nil {
+						return "", err
+					}
+				}
+			}
+
+		}
 		if err != nil {
 			return "", err
 		}
@@ -214,6 +237,54 @@ func (c MosaicKafkaJavaCodeGenerator) Generate(out string) (string, error) {
 	}
 
 	return "", nil
+}
+
+func (c MosaicKafkaJavaCodeGenerator) createItemClass(out string, prop Property) error {
+
+	itmMsg := javaSpecMessage{
+		Name: *prop.Items.Object.Name,
+		Message: Message{
+			Name:   *prop.Items.Object.Name,
+			Schema: *prop.Items.Object,
+		},
+	}
+	objImports := []string{}
+	for _, objProp := range itmMsg.Message.Schema.Properties {
+		objImports = c.spec.checkTypesToImport(objProp, objImports)
+		objImports = c.spec.checkAnnotationToImport(objProp, objImports)
+	}
+
+	itmMsg.Imports = objImports
+
+	output, err := c.createEventClass(itmMsg)
+	if err != nil {
+		return err
+	}
+
+	err = c.writeBytesToFile(out+"/"+*prop.Items.Object.Name+".java", output)
+	return nil
+}
+
+func (c MosaicKafkaJavaCodeGenerator) createObjectClass(out string, prop Property) error {
+	objEvent := javaSpecMessage{
+		Name: *prop.Object.Name,
+		Message: Message{
+			Name:   *prop.Object.Name,
+			Schema: *prop.Object,
+		},
+	}
+	objImports := []string{}
+	for _, objProp := range objEvent.Message.Schema.Properties {
+		objImports = c.spec.checkTypesToImport(objProp, objImports)
+		objImports = c.spec.checkAnnotationToImport(objProp, objImports)
+	}
+	objEvent.Imports = objImports
+	output, err := c.createEventClass(objEvent)
+	if err != nil {
+		return err
+	}
+	err = c.writeBytesToFile(out+"/"+*prop.Object.Name+".java", output)
+	return nil
 }
 
 func (c MosaicKafkaJavaCodeGenerator) writeBytesToFile(filename string, producer []byte) error {
