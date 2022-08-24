@@ -17,31 +17,4 @@ public class {{.Message.Name}} {
 	{{- range $propertyName, $property := .Message.Schema.Properties}}
 	private {{$property.Type}} {{$propertyName -}};
 	{{- end}}
-
-	{{- range $propertyName, $property := .Message.Schema.Properties}}
-  		{{- if $property.Object}}
-  @Data
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  static class {{$property.Object.Name}} {
-  			{{- range $objPropertyName, $objProperty := $property.Object.Properties}}
-  	private {{$objProperty.Type}} {{$objPropertyName -}};
-  			{{- end}}
-  }
-  		{{- end}}
-			{{- if $property.Items}}
-				{{- if $property.Items.Object}}
-	@Data
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	static class {{$property.Items.Object.Name}} {
-	{{- range $objPropertyName, $objProperty := $property.Items.Object.Properties}}
-		private {{$objProperty.Type}} {{$objPropertyName -}};
-	{{- end}}
-	}
-        {{- end}}
-      {{- end}}
-  	{{- end}}
 }
