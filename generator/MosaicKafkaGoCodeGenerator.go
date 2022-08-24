@@ -136,7 +136,7 @@ func (g *goSpec) rewriteToGoProperties(propertyName string, required *[]string, 
 	default:
 		if property.Format != nil {
 			typ = typeConversionGoMap[*property.Format]
-			if strings.Contains(typ, "date") {
+			if strings.Contains(typ, "time") {
 				g.Imports = append(g.Imports, "time")
 			}
 		} else {
