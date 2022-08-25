@@ -151,6 +151,7 @@ func (g *goSpec) rewriteToGoProperties(propertyName string, required *[]string, 
 		Minimum: property.Minimum,
 		Object:  property.Object,
 		Items:   property.Items,
+		Default: property.Default,
 	}
 }
 

@@ -384,5 +384,6 @@ func (a *javaSpec) rewriteToJavaProperties(propertyName string, required *[]stri
 		Minimum: property.Minimum,
 		Object:  property.Object,
 		Items:   property.Items,
+		Default: property.Default,
 	}
 }

@@ -57,6 +57,7 @@ type Payload struct {
 
 type Property struct {
 	Type                 string              `yaml:"type"`
+	Default              *string             `yaml:"default"`
 	Format               *string             `yaml:"format"`
 	Minimum              *int                `yaml:"minimum"`
 	AdditionalProperties *AdditionalProperty `yaml:"additionalProperties"`
