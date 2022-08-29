@@ -4,7 +4,9 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/c0olix/asyncApiCodeGen/generator"
+	"fmt"
+	goGen "github.com/c0olix/asyncApiCodeGen/generator/go"
+	javaGen "github.com/c0olix/asyncApiCodeGen/generator/java"
 	"github.com/c0olix/asyncApiCodeGen/logging"
 	"github.com/spf13/cobra"
 	"os"
@@ -57,25 +59,41 @@ func init() {
 }
 
 func generateMosaicKafkaGoCode(path string, out string) {
-	gen := generator.NewMosaicKafkaGoCodeGenerator(path)
-	output, err := gen.Generate()
+	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path)
 	if err != nil {
-		logger.Fatalf("unable to generate code: %v", err)
+		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to generate code: %v", err)
+	}
+	output, err := generator.Generate()
+	if err != nil {
+		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to generate code: %v", err)
 	}
 	f, err := os.Create(out)
 	if err != nil {
-		logger.Fatalf("unable to create output file: %v", err)
+		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output file: %v", err)
 	}
 	_, err = f.Write(output)
 	if err != nil {
-		logger.Fatalf("unable to write to output file: %v", err)
+		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to write to output file: %v", err)
 	}
 }
 
 func generateMosaicKafkaJavaCode(path string, out string) {
-	gen := generator.NewMosaicKafkaJavaCodeGenerator(path)
-	out, err := gen.Generate(out)
+	gen, err := javaGen.NewMosaicKafkaJavaCodeGenerator(path, logger)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
+	}
+	results, err := gen.Generate()
+	if err != nil {
+		logger.Fatalf("unable to generate code: %v", err)
+	}
+	for _, result := range results.Files {
+		f, err := os.Create(out + "/" + result.Name + ".java")
+		if err != nil {
+			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output file: %v", err)
+		}
+		_, err = f.Write(result.Content)
+		if err != nil {
+			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to write to output file: %v", err)
+		}
 	}
 }
