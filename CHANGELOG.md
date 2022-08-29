@@ -2,6 +2,21 @@
 
 <!--- next entry here -->
 
+## 0.5.0
+2022-08-29
+
+### Features
+
+- add default value (696400449f59fee874042adc2d4691986e4e7376)
+- use async api parser dependency (15849d285cd5913b640572b99de1dda09e3c2678)
+
+### Fixes
+
+- generate go (0035c7cedf3ee8f17fa4f2234ceb02020d28748c)
+- generate event, consumer, producer java (79e5c88410d27912605b63f7db54036c6f3a8f75)
+- time import for go (00c9bd251311eff3acc6d560916b531de1dd3553)
+- don't inline objects and items (fa23c9d26b6bc135543026520e6ef2c8c7ff52a5)
+
 ## 0.4.0
 2022-08-23
 
