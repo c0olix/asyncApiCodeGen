@@ -7,6 +7,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/slices"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -90,14 +91,14 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 				if !slices.Contains(out, importStatement) {
 					out = append(out, importStatement)
 				}
-			}
-		} else {
-			switch typ {
 			case "date", "date-time":
-				importStatement := "import java.time.OffsetDateTime"
+				importStatement := "import java.time.OffsetDateTime;"
 				if !slices.Contains(out, importStatement) {
 					out = append(out, importStatement)
 				}
+			}
+		} else {
+			switch typ {
 			case "array":
 				importStatement := "import java.util.List;"
 				if !slices.Contains(out, importStatement) {
@@ -123,6 +124,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 			}
 		}
 	}
+	sort.Strings(out)
 	return out
 }
 
@@ -150,7 +152,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) convertToJavaType(property map[string]
 			if items["format"] != nil {
 				typ = typ + typeConversionJavaMap[items["format"].(string)] + ">"
 			} else if items["type"] == "object" {
-				return items["title"].(string)
+				typ = typ + items["title"].(string) + ">"
 			} else {
 				typ = typ + typeConversionJavaMap[items["type"].(string)] + ">"
 			}
@@ -184,6 +186,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, pr
 			annotations = append(annotations, "@Email")
 		}
 	}
+	sort.Strings(annotations)
 	return annotations
 }
 
