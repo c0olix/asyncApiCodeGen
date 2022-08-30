@@ -65,12 +65,11 @@ func (thiz *MosaicKafkaGoCodeGenerator) extractImport(operationProperties map[st
 	message := operationProperties["message"].(map[string]interface{})
 	payload := message["payload"].(map[string]interface{})
 	properties := payload["properties"].(map[string]interface{})
-	for propertyName, property := range properties {
+	for _, property := range properties {
 		prop := property.(map[string]interface{})
-		thiz.log.Debugf("%v", propertyName)
 		if prop["format"] != nil {
-			format := prop["format"].(string)
-			switch format {
+			frm := prop["format"].(string)
+			switch frm {
 			case "date-time":
 				return "time"
 			}
@@ -104,7 +103,7 @@ func (thiz *MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]inte
 			if items["format"] != nil {
 				typ = typ + typeConversionGoMap[items["format"].(string)]
 			} else if items["type"] == "object" {
-				return items["title"].(string)
+				typ = typ + items["title"].(string)
 			} else {
 				typ = typ + typeConversionGoMap[items["type"].(string)]
 			}
