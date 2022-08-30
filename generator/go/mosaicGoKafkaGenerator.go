@@ -6,6 +6,7 @@ import (
 	"github.com/c0olix/asyncApiCodeGen/generator"
 	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
+	"go/format"
 	"golang.org/x/exp/slices"
 	"strings"
 	"text/template"
@@ -31,16 +32,16 @@ var templateFiles embed.FS
 type MosaicKafkaGoCodeGenerator struct {
 	template *template.Template
 	data     map[string]interface{}
-	log      logrus.Logger
+	log      *logrus.Logger
 }
 
-func (c MosaicKafkaGoCodeGenerator) getImports(data map[string]interface{}) []string {
+func (thiz *MosaicKafkaGoCodeGenerator) getImports(data map[string]interface{}) []string {
 	var out []string
 	for _, channel := range data["channels"].(map[string]interface{}) {
 		operation := channel.(map[string]interface{})
 		if operation["publish"] != nil {
 			operationProperties := operation["publish"].(map[string]interface{})
-			imp := c.extractImport(operationProperties)
+			imp := thiz.extractImport(operationProperties)
 			if imp != "" {
 				if !slices.Contains(out, imp) {
 					out = append(out, imp)
@@ -48,7 +49,7 @@ func (c MosaicKafkaGoCodeGenerator) getImports(data map[string]interface{}) []st
 			}
 		} else if operation["subscribe"] != nil {
 			operationProperties := operation["subscribe"].(map[string]interface{})
-			imp := c.extractImport(operationProperties)
+			imp := thiz.extractImport(operationProperties)
 			if imp != "" {
 				if !slices.Contains(out, imp) {
 					out = append(out, imp)
@@ -60,13 +61,13 @@ func (c MosaicKafkaGoCodeGenerator) getImports(data map[string]interface{}) []st
 	return out
 }
 
-func (c MosaicKafkaGoCodeGenerator) extractImport(operationProperties map[string]interface{}) string {
+func (thiz *MosaicKafkaGoCodeGenerator) extractImport(operationProperties map[string]interface{}) string {
 	message := operationProperties["message"].(map[string]interface{})
 	payload := message["payload"].(map[string]interface{})
 	properties := payload["properties"].(map[string]interface{})
 	for propertyName, property := range properties {
 		prop := property.(map[string]interface{})
-		c.log.Debugf("%v", propertyName)
+		thiz.log.Debugf("%v", propertyName)
 		if prop["format"] != nil {
 			format := prop["format"].(string)
 			switch format {
@@ -79,7 +80,7 @@ func (c MosaicKafkaGoCodeGenerator) extractImport(operationProperties map[string
 	return ""
 }
 
-func (c MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]interface{}) string {
+func (thiz *MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]interface{}) string {
 	switch property["type"] {
 	case "object":
 		if property["additionalProperties"] != nil {
@@ -119,8 +120,10 @@ func (c MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]interfac
 	return ""
 }
 
-func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string) (*MosaicKafkaGoCodeGenerator, error) {
-	goKafkaGenerator := MosaicKafkaGoCodeGenerator{}
+func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) (*MosaicKafkaGoCodeGenerator, error) {
+	goKafkaGenerator := MosaicKafkaGoCodeGenerator{
+		log: log,
+	}
 	fns := template.FuncMap{
 		"getImports":      goKafkaGenerator.getImports,
 		"getMessages":     generator.GetMessages,
@@ -142,11 +145,15 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string) (*MosaicKafkaGoCodeG
 	return &goKafkaGenerator, nil
 }
 
-func (c MosaicKafkaGoCodeGenerator) Generate() ([]byte, error) {
+func (thiz *MosaicKafkaGoCodeGenerator) Generate() ([]byte, error) {
 	var tpl bytes.Buffer
-	err := c.template.Execute(&tpl, c.data)
+	err := thiz.template.Execute(&tpl, thiz.data)
 	if err != nil {
 		return nil, err
 	}
-	return tpl.Bytes(), nil
+	p, err := format.Source(tpl.Bytes())
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }

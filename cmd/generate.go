@@ -59,7 +59,7 @@ func init() {
 }
 
 func generateMosaicKafkaGoCode(path string, out string) {
-	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path)
+	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path, logger)
 	if err != nil {
 		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to generate code: %v", err)
 	}

@@ -45,7 +45,7 @@ type ResultFile struct {
 	Content []byte
 }
 
-func (c MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]interface{}) []string {
+func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]interface{}) []string {
 	var out []string
 	properties := messagePayload["properties"].(map[string]interface{})
 	var required []interface{}
@@ -126,7 +126,7 @@ func (c MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]inter
 	return out
 }
 
-func (c MosaicKafkaJavaCodeGenerator) convertToJavaType(property map[string]interface{}) string {
+func (thiz *MosaicKafkaJavaCodeGenerator) convertToJavaType(property map[string]interface{}) string {
 	switch property["type"] {
 	case "object":
 		if property["additionalProperties"] != nil {
@@ -166,7 +166,7 @@ func (c MosaicKafkaJavaCodeGenerator) convertToJavaType(property map[string]inte
 	return ""
 }
 
-func (c MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, property map[string]interface{}, required []interface{}) []string {
+func (thiz *MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, property map[string]interface{}, required []interface{}) []string {
 	var annotations []string
 	if generator.HasDefault(property) {
 		annotations = append(annotations, "@Builder.Default")
@@ -218,12 +218,12 @@ func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, logger *logrus.Log
 	return &javaKafkaGenerator, nil
 }
 
-func (c MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult, error) {
+func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult, error) {
 	var results []ResultFile
-	messages := generator.GetMessages(c.data)
+	messages := generator.GetMessages(thiz.data)
 	for _, message := range messages {
 		var tpl bytes.Buffer
-		err := c.eventClassTemplate.Execute(&tpl, message)
+		err := thiz.eventClassTemplate.Execute(&tpl, message)
 		if err != nil {
 			return nil, err
 		}
@@ -232,12 +232,12 @@ func (c MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult, er
 			Content: tpl.Bytes(),
 		})
 	}
-	for _, channel := range c.data["channels"].(map[string]interface{}) {
+	for _, channel := range thiz.data["channels"].(map[string]interface{}) {
 		var tpl bytes.Buffer
 		ch := channel.(map[string]interface{})
 		if ch["publish"] != nil {
 			operation := ch["publish"].(map[string]interface{})
-			err := c.consumerInterfaceTemplate.Execute(&tpl, operation)
+			err := thiz.consumerInterfaceTemplate.Execute(&tpl, operation)
 			if err != nil {
 				return nil, err
 			}
@@ -248,7 +248,7 @@ func (c MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult, er
 			})
 		} else {
 			operation := ch["subscribe"].(map[string]interface{})
-			err := c.producerInterfaceTemplate.Execute(&tpl, operation)
+			err := thiz.producerInterfaceTemplate.Execute(&tpl, operation)
 			if err != nil {
 				return nil, err
 			}
