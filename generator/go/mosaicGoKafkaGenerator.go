@@ -119,6 +119,24 @@ func (thiz *MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]inte
 	return ""
 }
 
+func (thiz *MosaicKafkaGoCodeGenerator) validations(property map[string]interface{}, required bool) string {
+	out := ` validate:"`
+	if required {
+		out = out + "required,"
+	}
+	if property["format"] != nil {
+		switch property["format"].(string) {
+		case "email":
+			out = out + "email,"
+		}
+	}
+	out = out[:len(out)-1] + `"`
+	if out != ` validate:""` {
+		return out
+	}
+	return ""
+}
+
 func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) (*MosaicKafkaGoCodeGenerator, error) {
 	goKafkaGenerator := MosaicKafkaGoCodeGenerator{
 		log: log,
@@ -132,6 +150,7 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) 
 		"lower":           strings.ToLower,
 		"camel":           strcase.ToCamel,
 		"checkRequired":   generator.CheckRequired,
+		"validations":     goKafkaGenerator.validations,
 	}
 	spec, err := generator.LoadAsyncApiSpecWithParser(asyncApiSpecPath)
 	if err != nil {
