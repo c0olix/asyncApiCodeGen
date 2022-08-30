@@ -131,7 +131,7 @@ func (thiz *MosaicKafkaGoCodeGenerator) validations(property map[string]interfac
 		}
 	}
 	out = out[:len(out)-1] + `"`
-	if out != ` validate:""` {
+	if out != ` validate:"` {
 		return out
 	}
 	return ""
@@ -149,6 +149,7 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) 
 		"convertToGoType": goKafkaGenerator.convertToGoType,
 		"lower":           strings.ToLower,
 		"camel":           strcase.ToCamel,
+		"lowerCamel":      strcase.ToLowerCamel,
 		"checkRequired":   generator.CheckRequired,
 		"validations":     goKafkaGenerator.validations,
 	}

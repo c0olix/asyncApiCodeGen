@@ -6,6 +6,7 @@ package events
 import (
 	"context"
 	"git.hochbahn.cloud/mosaic/libs/go-microservice-starter-commons.git/messaging"
+	"github.com/go-playground/validator/v10"
 {{- range $imp := getImports .}}
 	"{{$imp}}"
 {{- end}}
@@ -16,6 +17,8 @@ const (
 	{{ lower $channelName | camel}}TopicName = "{{$channelName}}"
 {{- end}}
 )
+
+var validate *validator.Validate = validator.New()
 
 // KafkaTopicConfig Holds configuration needed fo create a kafka topic
 type KafkaTopicConfig struct {
@@ -28,8 +31,27 @@ type KafkaTopicConfig struct {
 // {{$message.name}} {{$message.description}}
 type {{$message.name}} struct {
   {{- range $propertyName, $property := $message.payload.properties}} {{$required := checkRequired $propertyName $message.payload.required}}
-  {{camel $propertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $property -}} `json:"{{$propertyName}}{{if not $required -}},omitempty{{- end}}"`
+  {{camel $propertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $property -}} `json:"{{$propertyName}}{{if not $required -}},omitempty{{- end}}"{{validations $property $required }}`
   {{- end}}
+}
+
+// Validate validates the {{$message.name}}) struct for its requirements
+func (thiz {{$message.name}}) Validate() error{
+	return validate.Struct(thiz)
+}
+
+// New{{$message.name}} creates a new struct of the {{$message.name}} type and validates its content
+func New{{$message.name}}({{range $propertyName, $property := $message.payload.properties}}{{$required := checkRequired $propertyName $message.payload.required}}{{$propertyName}} {{if not $required}}*{{end}}{{ convertToGoType $property}},{{end}}) (*{{$message.name}},error) {
+	{{lowerCamel $message.name}} := {{$message.name}}{
+		{{- range $propertyName, $property := $message.payload.properties}}
+		{{camel $propertyName}}: {{$propertyName}},
+    {{- end}}
+	}
+	err := {{lowerCamel $message.name}}.Validate()
+	if err != nil {
+	  return nil, err
+	}
+	return &{{lowerCamel $message.name}}, nil
 }
 {{ end}}
 
@@ -37,8 +59,27 @@ type {{$message.name}} struct {
 // {{$object.title}} Nested object for {{$object.parent}} type
 type {{$object.title}} struct {
   {{- range $objPropertyName, $objProperty := $object.properties}} {{$required := checkRequired $objPropertyName $object.required}}
-  {{camel $objPropertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $objProperty -}} `json:"{{$objPropertyName}}{{if not $required -}},omitempty{{- end}}"`
+  {{camel $objPropertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $objProperty -}} `json:"{{$objPropertyName}}{{if not $required -}},omitempty{{- end}}"{{validations $objProperty $required }}`
   {{- end}}
+}
+
+// Validate validates the {{$object.title}} struct for its requirements
+func (thiz {{$object.title}}) Validate() error{
+  return validate.Struct(thiz)
+}
+
+// New{{$object.title}} creates a new struct of the {{$object.title}} type and validates its content
+func New{{$object.title}}({{range $propertyName, $property := $object.properties}}{{$required := checkRequired $propertyName $object.required}}{{$propertyName}} {{if not $required}}*{{end}}{{ convertToGoType $property}},{{end}}) (*{{$object.title}},error) {
+	{{lowerCamel $object.title}} := {{$object.title}}{
+{{- range $propertyName, $property := $object.properties}}
+    	{{camel $propertyName}}: {{$propertyName}},
+{{- end}}
+	}
+	err := {{lowerCamel $object.title}}.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return &{{lowerCamel $object.title}}, nil
 }
 {{- end}}
 {{ range $item := $items }}
@@ -46,15 +87,34 @@ type {{$object.title}} struct {
 // {{$item.items.title}} Nested object for {{$item.parent}} type
 type {{$item.items.title}} struct {
   {{- range $objPropertyName, $objProperty := $item.items.properties}} {{$required := checkRequired $objPropertyName $item.items.required}}
-  {{camel $objPropertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $objProperty -}} `json:"{{$objPropertyName}}{{if not $required -}},omitempty{{- end}}"`
+  {{camel $objPropertyName}} {{if not $required -}}*{{- end}}{{ convertToGoType $objProperty -}} `json:"{{$objPropertyName}}{{if not $required -}},omitempty{{- end}}"{{validations $objProperty $required }}`
   {{- end}}
+}
+
+// Validate validates the {{$item.items.title}} struct for its requirements
+func (thiz {{$item.items.title}}) Validate() error{
+	return validate.Struct(thiz)
+}
+
+// New{{$item.items.title}} creates a new struct of the {{$item.items.title}} type and validates its content
+func New{{$item.items.title}}({{range $propertyName, $property := $item.items.properties}}{{$required := checkRequired $propertyName $item.items.required}}{{$propertyName}} {{if not $required}}*{{end}}{{ convertToGoType $property}},{{end}}) (*{{$item.items.title}},error) {
+	{{lowerCamel $item.items.title}} := {{$item.items.title}}{
+{{- range $propertyName, $property := $item.items.properties}}
+    	{{camel $propertyName}}: {{$propertyName}},
+{{- end}}
+	}
+	err := {{lowerCamel $item.items.title}}.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return &{{lowerCamel $item.items.title}}, nil
 }
 {{- end}}
 
 
 // ConsumerInterface Interface for all events to be consumed by application
 type ConsumerInterface interface {
-{{ range $channelName, $channel := .channels }}
+{{- range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
 	{{camel $channel.publish.operationId}}(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
     {{- end}}
@@ -63,7 +123,7 @@ type ConsumerInterface interface {
 
 // ProducerInterface Interface for all events to be produced by application
 type ProducerInterface interface {
-{{ range $channelName, $channel := .channels }}
+{{- range $channelName, $channel := .channels }}
     {{- if $channel.subscribe}}
 	{{camel $channel.subscribe.operationId}}(ctx context.Context, event {{$channel.subscribe.message.name}}, header ...messaging.KafkaHeader) error
     {{- end}}
@@ -148,4 +208,4 @@ func (d DefaultProducer) {{camel $channel.subscribe.operationId}}(ctx context.Co
 	return nil
 }
     {{- end}}
-{{ end}}
+{{- end}}
