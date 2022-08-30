@@ -2,6 +2,20 @@
 
 <!--- next entry here -->
 
+## 0.6.0
+2022-08-30
+
+### Features
+
+- **mosaicgokafkagenerator:** validation on struct fields (2a3e474dacc522f6215891847a73c9844f37471d)
+
+### Fixes
+
+- naming and pointer (e032df48eb00150acf39c4485b50ab15db90d074)
+- **mosaicgokafkagenerator:** missing tests for type conversation (f3db3720c962ad51ebdcf338abcaa28261503cf1)
+- **mosaicjavakafkagenerator:** missing tests for type conversation, imports and annotations (8a68e57de0c77701d656e9d7abecc7663d7b2650)
+- **mosaicgokafkagenerator:** export methods (067ab457eaa658376bd24cb4dee5e01f1d25f986)
+
 ## 0.5.0
 2022-08-29
 
