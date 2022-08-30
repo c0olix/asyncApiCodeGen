@@ -56,7 +56,7 @@ type {{$item.items.title}} struct {
 type ConsumerInterface interface {
 {{ range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
-	{{$channel.publish.operationId}}(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
+	{{camel $channel.publish.operationId}}(callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction)
     {{- end}}
 {{- end}}
 }
@@ -65,7 +65,7 @@ type ConsumerInterface interface {
 type ProducerInterface interface {
 {{ range $channelName, $channel := .channels }}
     {{- if $channel.subscribe}}
-	{{$channel.subscribe.operationId}}(ctx context.Context, event {{$channel.subscribe.message.name}}, header ...messaging.KafkaHeader) error
+	{{camel $channel.subscribe.operationId}}(ctx context.Context, event {{$channel.subscribe.message.name}}, header ...messaging.KafkaHeader) error
     {{- end}}
 {{- end}}
 }
@@ -128,9 +128,9 @@ func NewDefaultProducer(manager messaging.KafkaManager, config KafkaTopicConfig)
 
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
-//{{$channel.publish.operationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
+//{{camel $channel.publish.operationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
 // to consume the {{$channel.publish.message.name}} Event.
-func (d DefaultConsumer)  {{$channel.publish.operationId}} (callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction) {
+func (d DefaultConsumer)  {{camel $channel.publish.operationId}} (callback messaging.CallbackFunction, errorCallback messaging.ErrorCallbackFunction) {
 	d.{{ lower $channelName | camel}}Topic.Consume({{$channel.publish.message.name}}{}, callback, errorCallback)
 }
     {{- end}}
@@ -138,9 +138,9 @@ func (d DefaultConsumer)  {{$channel.publish.operationId}} (callback messaging.C
 
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.subscribe}}
-//{{$channel.subscribe.operationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
+//{{camel $channel.subscribe.operationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
 // to produce the {{$channel.subscribe.message.name}} Event.
-func (d DefaultProducer) {{$channel.subscribe.operationId}}(ctx context.Context, event {{$channel.subscribe.message.name}}, header ...messaging.KafkaHeader) error {
+func (d DefaultProducer) {{camel $channel.subscribe.operationId}}(ctx context.Context, event {{$channel.subscribe.message.name}}, header ...messaging.KafkaHeader) error {
 	err := d.{{ lower $channelName | camel}}Topic.Produce(ctx, event, header...)
 	if err != nil {
 		return err
