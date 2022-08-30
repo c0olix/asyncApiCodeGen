@@ -255,3 +255,45 @@ func TestMosaicKafkaGoCodeGenerator_convertToGoType(t *testing.T) {
 		})
 	}
 }
+
+func TestMosaicKafkaGoCodeGenerator_validations(t *testing.T) {
+
+	type args struct {
+		property map[string]interface{}
+		required bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "required email",
+			args: args{
+				property: map[string]interface{}{
+					"format": "email",
+				},
+				required: true,
+			},
+			want: ` validate:"required,email"`,
+		},
+		{
+			name: "not required",
+			args: args{
+				property: map[string]interface{}{
+					"type": "string",
+				},
+				required: false,
+			},
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			thiz := &MosaicKafkaGoCodeGenerator{}
+			if got := thiz.validations(tt.args.property, tt.args.required); got != tt.want {
+				t.Errorf("validations() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
