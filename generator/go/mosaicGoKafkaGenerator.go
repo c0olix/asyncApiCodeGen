@@ -121,7 +121,7 @@ func (thiz *MosaicKafkaGoCodeGenerator) convertToGoType(property map[string]inte
 
 func (thiz *MosaicKafkaGoCodeGenerator) validations(property map[string]interface{}, required bool) string {
 	out := ` validate:"`
-	if required {
+	if required && property["type"] != "boolean" {
 		out = out + "required,"
 	}
 	if property["format"] != nil {
