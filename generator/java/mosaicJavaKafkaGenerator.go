@@ -104,6 +104,29 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 				if !slices.Contains(out, importStatement) {
 					out = append(out, importStatement)
 				}
+				prop := prop.(map[string]interface{})
+				if prop["items"] != nil {
+					items := prop["items"].(map[string]interface{})
+					if items["format"] != nil {
+						switch items["format"] {
+						case "email":
+							importStatement := "import javax.validation.constraints.Email;"
+							if !slices.Contains(out, importStatement) {
+								out = append(out, importStatement)
+							}
+						case "binary":
+							importStatement := "import java.io.File;"
+							if !slices.Contains(out, importStatement) {
+								out = append(out, importStatement)
+							}
+						case "date", "date-time":
+							importStatement := "import java.time.OffsetDateTime;"
+							if !slices.Contains(out, importStatement) {
+								out = append(out, importStatement)
+							}
+						}
+					}
+				}
 			case "object":
 				if property["additionalProperties"] != nil {
 					_, ok := property["additionalProperties"].(map[string]interface{})
@@ -232,6 +255,53 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 		}
 		results = append(results, ResultFile{
 			Name:    message["name"].(string),
+			Content: tpl.Bytes(),
+		})
+	}
+	objects := generator.GetNestedObjects(messages)
+	for _, obj := range objects {
+		var tpl bytes.Buffer
+		objEvent := map[string]interface{}{
+			"name": obj["title"],
+			"payload": map[string]interface{}{
+				"additionalProperties": obj["additionalProperties"],
+				"title":                obj["title"],
+				"required":             obj["required"],
+				"properties":           obj["properties"],
+				"type":                 obj["type"],
+				"parent":               obj["parent"],
+			},
+		}
+		err := thiz.eventClassTemplate.Execute(&tpl, objEvent)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, ResultFile{
+			Name:    objEvent["name"].(string),
+			Content: tpl.Bytes(),
+		})
+	}
+	items := generator.GetItemObjects(messages)
+	for _, obj := range items {
+		var tpl bytes.Buffer
+		items := obj["items"].(map[string]interface{})
+		objEvent := map[string]interface{}{
+			"name": items["title"],
+			"payload": map[string]interface{}{
+				"additionalProperties": items["additionalProperties"],
+				"title":                items["title"],
+				"required":             items["required"],
+				"properties":           items["properties"],
+				"type":                 items["type"],
+				"parent":               items["parent"],
+			},
+		}
+		err := thiz.eventClassTemplate.Execute(&tpl, objEvent)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, ResultFile{
+			Name:    objEvent["name"].(string),
 			Content: tpl.Bytes(),
 		})
 	}
