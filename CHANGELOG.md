@@ -2,6 +2,11 @@
 
 <!--- next entry here -->
 
+## 0.6.1
+2022-08-31
+- **mosaicjavakafkagenerator:** imports for array items and generation of nested objects (c799502a00a079998a7e9e952f47b8e65e88221a)
+- **mosaicjavakafkagenerator:** create output dir if not present (7bd811cce906c10f4fff7ab2c24e6f5871fb9f25)
+
 ## 0.6.0
 2022-08-30
 
