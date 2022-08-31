@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.6.2
+2022-08-31
+
+### Fixes
+
+- don't validate required on bool fields (a109dc7cd2267f61dd592d423266495c6b18c1ee)
+
 ## 0.6.1
 2022-08-31
 - **mosaicjavakafkagenerator:** imports for array items and generation of nested objects (c799502a00a079998a7e9e952f47b8e65e88221a)
