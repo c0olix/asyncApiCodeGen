@@ -7,12 +7,9 @@ import (
 	"fmt"
 	goGen "github.com/c0olix/asyncApiCodeGen/generator/go"
 	javaGen "github.com/c0olix/asyncApiCodeGen/generator/java"
-	"github.com/c0olix/asyncApiCodeGen/logging"
 	"github.com/spf13/cobra"
 	"os"
 )
-
-var logger = logging.NewLogger()
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
