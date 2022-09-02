@@ -4,10 +4,13 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/c0olix/asyncApiCodeGen/logging"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+var logger = logging.NewLogger()
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
