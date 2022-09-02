@@ -3,6 +3,7 @@ package gogen
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"github.com/c0olix/asyncApiCodeGen/generator"
 	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
@@ -13,11 +14,13 @@ import (
 )
 
 var typeConversionGoMap = map[string]string{
-	"int32":     "int",
+	"integer":   "int",
+	"int32":     "int32",
 	"int64":     "int64",
 	"string":    "string",
 	"email":     "string",
 	"boolean":   "bool",
+	"number":    "float32",
 	"float":     "float32",
 	"double":    "float64",
 	"binary":    "[]byte",
@@ -128,6 +131,45 @@ func (thiz *MosaicKafkaGoCodeGenerator) validations(property map[string]interfac
 		switch property["format"].(string) {
 		case "email":
 			out = out + "email,"
+		}
+	}
+	if property["minimum"] != nil {
+		min := property["minimum"].(int)
+		out = out + fmt.Sprintf("gte=%d,", min)
+	} else if property["exclusiveMinimum"] != nil {
+		min := property["exclusiveMinimum"].(int)
+		out = out + fmt.Sprintf("gt=%d,", min)
+	}
+	if property["maximum"] != nil {
+		max := property["maximum"].(int)
+		out = out + fmt.Sprintf("lte=%d,", max)
+	} else if property["exclusiveMaximum"] != nil {
+		max := property["exclusiveMaximum"].(int)
+		out = out + fmt.Sprintf("lt=%d,", max)
+	}
+	if property["type"] == "string" {
+		if property["minLength"] != nil {
+			min := property["minLength"].(int)
+			out = out + fmt.Sprintf("min=%d,", min)
+		}
+		if property["maxLength"] != nil {
+			max := property["maxLength"].(int)
+			out = out + fmt.Sprintf("max=%d,", max)
+		}
+	}
+	if property["type"] == "array" {
+		if property["minItems"] != nil {
+			min := property["minItems"].(int)
+			out = out + fmt.Sprintf("min=%d,", min)
+		}
+		if property["maxItems"] != nil {
+			max := property["maxItems"].(int)
+			out = out + fmt.Sprintf("max=%d,", max)
+		}
+		if property["uniqueItems"] != nil {
+			if property["uniqueItems"].(bool) {
+				out = out + "unique,"
+			}
 		}
 	}
 	out = out[:len(out)-1] + `"`
