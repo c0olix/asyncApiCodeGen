@@ -278,6 +278,105 @@ func TestMosaicKafkaGoCodeGenerator_validations(t *testing.T) {
 			want: ` validate:"required,email"`,
 		},
 		{
+			name: "int min",
+			args: args{
+				property: map[string]interface{}{
+					"minimum": 1,
+					"type":    "integer",
+				},
+				required: false,
+			},
+			want: ` validate:"gte=1"`,
+		},
+		{
+			name: "int exclusive min",
+			args: args{
+				property: map[string]interface{}{
+					"exclusiveMinimum": 1,
+					"type":             "integer",
+				},
+				required: false,
+			},
+			want: ` validate:"gt=1"`,
+		},
+		{
+			name: "int max",
+			args: args{
+				property: map[string]interface{}{
+					"maximum": 1,
+					"type":    "integer",
+				},
+				required: false,
+			},
+			want: ` validate:"lte=1"`,
+		},
+		{
+			name: "int exclusive max",
+			args: args{
+				property: map[string]interface{}{
+					"exclusiveMaximum": 1,
+					"type":             "integer",
+				},
+				required: false,
+			},
+			want: ` validate:"lt=1"`,
+		},
+		{
+			name: "string min",
+			args: args{
+				property: map[string]interface{}{
+					"minLength": 1,
+					"type":      "string",
+				},
+				required: false,
+			},
+			want: ` validate:"min=1"`,
+		},
+		{
+			name: "string max",
+			args: args{
+				property: map[string]interface{}{
+					"maxLength": 1,
+					"type":      "string",
+				},
+				required: false,
+			},
+			want: ` validate:"max=1"`,
+		},
+		{
+			name: "array min",
+			args: args{
+				property: map[string]interface{}{
+					"minItems": 1,
+					"type":     "array",
+				},
+				required: false,
+			},
+			want: ` validate:"min=1"`,
+		},
+		{
+			name: "array max",
+			args: args{
+				property: map[string]interface{}{
+					"maxItems": 1,
+					"type":     "array",
+				},
+				required: false,
+			},
+			want: ` validate:"max=1"`,
+		},
+		{
+			name: "array unique",
+			args: args{
+				property: map[string]interface{}{
+					"uniqueItems": true,
+					"type":        "array",
+				},
+				required: false,
+			},
+			want: ` validate:"unique"`,
+		},
+		{
 			name: "not required",
 			args: args{
 				property: map[string]interface{}{
