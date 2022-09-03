@@ -2,6 +2,21 @@
 
 <!--- next entry here -->
 
+## 0.7.0
+2022-09-03
+
+### Features
+
+- **mosaicgokafkagenerator:** more validations (c9bd42712fb447781f4cfa7eeb46ff7c38d95c41)
+- **cli:** validate given async api spec (36831a8f90de490570588258ed8135e46577d853)
+- **mosaicjavakafkagenerator:** more validations (5d750eb0033320418a77bb66b00371423787f248)
+
+### Fixes
+
+- add section for supported features (9e24768c1486f966c7fc66b0356e8a962e2b21c0)
+- remove private repository dependency (79b9baa73789d27fb008f4b7439b6699c816f790)
+- remove example output, as it uses a private repository and breaks tests (44b601939c90d16633a46d3cda5d6816b55f2173)
+
 ## 0.6.2
 2022-08-31
 
