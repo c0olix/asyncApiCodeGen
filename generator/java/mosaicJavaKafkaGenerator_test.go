@@ -50,6 +50,30 @@ func TestMosaicKafkaJavaCodeGenerator_getImports(t *testing.T) {
 							"type":                 "object",
 							"additionalProperties": true,
 						},
+						"minimum": map[string]interface{}{
+							"type":    "integer",
+							"minimum": 1,
+						},
+						"maximum": map[string]interface{}{
+							"type":    "integer",
+							"maximum": 1,
+						},
+						"minLength": map[string]interface{}{
+							"type":      "string",
+							"minLength": 1,
+						},
+						"maxLength": map[string]interface{}{
+							"type":      "string",
+							"maxLength": 1,
+						},
+						"minItems": map[string]interface{}{
+							"type":     "string",
+							"minItems": 1,
+						},
+						"maxItems": map[string]interface{}{
+							"type":     "string",
+							"maxItems": 1,
+						},
 					},
 				},
 			},
@@ -59,6 +83,9 @@ func TestMosaicKafkaJavaCodeGenerator_getImports(t *testing.T) {
 				"import javax.validation.constraints.Email;",
 				"import javax.validation.constraints.NotNull;",
 				"import javax.validation.constraints.NotBlank;",
+				"import javax.validation.constraints.Size;",
+				"import javax.validation.constraints.Min;",
+				"import javax.validation.constraints.Max;",
 				"import java.util.List;",
 				"import java.util.Map;",
 			},
@@ -85,10 +112,20 @@ func TestMosaicKafkaJavaCodeGenerator_convertToJavaType(t *testing.T) {
 		want string
 	}{
 		{
+			name: "integer",
+			args: args{
+				property: map[string]interface{}{
+					"type": "integer",
+				},
+			},
+			want: "Integer",
+		},
+		{
 			name: "int32",
 			args: args{
 				property: map[string]interface{}{
-					"type": "int32",
+					"type":   "integer",
+					"format": "int32",
 				},
 			},
 			want: "Integer",
@@ -97,7 +134,8 @@ func TestMosaicKafkaJavaCodeGenerator_convertToJavaType(t *testing.T) {
 			name: "int64",
 			args: args{
 				property: map[string]interface{}{
-					"type": "int64",
+					"type":   "integer",
+					"format": "int64",
 				},
 			},
 			want: "Long",
@@ -131,10 +169,20 @@ func TestMosaicKafkaJavaCodeGenerator_convertToJavaType(t *testing.T) {
 			want: "Boolean",
 		},
 		{
+			name: "number",
+			args: args{
+				property: map[string]interface{}{
+					"type": "number",
+				},
+			},
+			want: "Float",
+		},
+		{
 			name: "float",
 			args: args{
 				property: map[string]interface{}{
-					"type": "float",
+					"type":   "number",
+					"format": "float",
 				},
 			},
 			want: "Float",
@@ -143,7 +191,8 @@ func TestMosaicKafkaJavaCodeGenerator_convertToJavaType(t *testing.T) {
 			name: "double",
 			args: args{
 				property: map[string]interface{}{
-					"type": "double",
+					"type":   "number",
+					"format": "double",
 				},
 			},
 			want: "Double",
@@ -301,6 +350,120 @@ func TestMosaicKafkaJavaCodeGenerator_getAnnotations(t *testing.T) {
 			},
 			want: []string{
 				"@NotBlank",
+			},
+		},
+		{
+			name: "min integer",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":    "integer",
+					"minimum": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Min(1)",
+			},
+		},
+		{
+			name: "max integer",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":    "integer",
+					"maximum": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Max(1)",
+			},
+		},
+		{
+			name: "string minlength",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":      "string",
+					"minLength": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(min=1)",
+			},
+		},
+		{
+			name: "string maxLength",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":      "string",
+					"maxLength": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(max=1)",
+			},
+		},
+		{
+			name: "string minlength and maxLength",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":      "string",
+					"minLength": 1,
+					"maxLength": 10,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(min=1,max=10)",
+			},
+		},
+		{
+			name: "array minItems",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":     "array",
+					"minItems": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(min=1)",
+			},
+		},
+		{
+			name: "array maxItems",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":     "array",
+					"maxItems": 1,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(max=1)",
+			},
+		},
+		{
+			name: "array minItems and maxItems",
+			args: args{
+				propertyName: "testProperty",
+				property: map[string]interface{}{
+					"type":     "array",
+					"minItems": 1,
+					"maxItems": 10,
+				},
+				required: []interface{}{},
+			},
+			want: []string{
+				"@Size(min=1,max=10)",
 			},
 		},
 	}
