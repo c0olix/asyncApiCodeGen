@@ -3,6 +3,7 @@ package javagen
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"github.com/c0olix/asyncApiCodeGen/generator"
 	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
@@ -54,13 +55,48 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 		required = messagePayload["required"].([]interface{})
 	}
 	for propKey, prop := range properties {
-
 		property := prop.(map[string]interface{})
 		typ := property["type"].(string)
 		var format *string
 		if property["format"] != nil {
 			form := property["format"].(string)
 			format = &form
+		}
+		if property["minimum"] != nil {
+			importStatement := "import javax.validation.constraints.Min;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
+		}
+		if property["maximum"] != nil {
+			importStatement := "import javax.validation.constraints.Max;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
+		}
+		if property["minLength"] != nil {
+			importStatement := "import javax.validation.constraints.Size;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
+		}
+		if property["maxLength"] != nil {
+			importStatement := "import javax.validation.constraints.Size;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
+		}
+		if property["minItems"] != nil {
+			importStatement := "import javax.validation.constraints.Size;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
+		}
+		if property["maxItems"] != nil {
+			importStatement := "import javax.validation.constraints.Size;"
+			if !slices.Contains(out, importStatement) {
+				out = append(out, importStatement)
+			}
 		}
 		if required != nil {
 			for _, reqProp := range required {
@@ -208,6 +244,44 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, pr
 		if form == "email" {
 			annotations = append(annotations, "@Email")
 		}
+	}
+	if property["minimum"] != nil {
+		min := property["minimum"].(int)
+		annotations = append(annotations, fmt.Sprintf("@Min(%d)", min))
+	}
+	if property["maximum"] != nil {
+		max := property["maximum"].(int)
+		annotations = append(annotations, fmt.Sprintf("@Max(%d)", max))
+	}
+	maxLengthAlreadyProcessed := false
+	if property["minLength"] != nil {
+		min := property["minLength"].(int)
+		if property["maxLength"] != nil {
+			max := property["maxLength"].(int)
+			annotations = append(annotations, fmt.Sprintf("@Size(min=%d,max=%d)", min, max))
+			maxLengthAlreadyProcessed = true
+		} else {
+			annotations = append(annotations, fmt.Sprintf("@Size(min=%d)", min))
+		}
+	}
+	if property["maxLength"] != nil && !maxLengthAlreadyProcessed {
+		max := property["maxLength"].(int)
+		annotations = append(annotations, fmt.Sprintf("@Size(max=%d)", max))
+	}
+	maxItemsAlreadyProcessed := false
+	if property["minItems"] != nil {
+		min := property["minItems"].(int)
+		if property["maxItems"] != nil {
+			max := property["maxItems"].(int)
+			annotations = append(annotations, fmt.Sprintf("@Size(min=%d,max=%d)", min, max))
+			maxItemsAlreadyProcessed = true
+		} else {
+			annotations = append(annotations, fmt.Sprintf("@Size(min=%d)", min))
+		}
+	}
+	if property["maxItems"] != nil && !maxItemsAlreadyProcessed {
+		max := property["maxItems"].(int)
+		annotations = append(annotations, fmt.Sprintf("@Size(max=%d)", max))
 	}
 	sort.Strings(annotations)
 	return annotations
