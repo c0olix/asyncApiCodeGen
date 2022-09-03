@@ -3,7 +3,6 @@ module github.com/c0olix/asyncApiCodeGen
 go 1.19
 
 require (
-	git.hochbahn.cloud/mosaic/libs/go-microservice-starter-commons.git v1.44.0
 	github.com/asyncapi/parser-go v0.4.2
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/iancoleman/strcase v0.2.0
