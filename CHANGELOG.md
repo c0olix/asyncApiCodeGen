@@ -1,3 +1,24 @@
+# [1.0.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.7.0...v1.0.0) (2022-09-04)
+
+
+* feat(cli)!: add flag packageName ([9186a5d](https://github.com/c0olix/asyncApiCodeGen/commit/9186a5dcde97ceff911e79c0d6803e8f85a21bec))
+* feat(cli)!: add flags input, output ([24c473d](https://github.com/c0olix/asyncApiCodeGen/commit/24c473d3a9bb5daa7cd13766fc9d3636be8edb05))
+* feat(cli)!: add flag createDir ([b1574fb](https://github.com/c0olix/asyncApiCodeGen/commit/b1574fb5cf603634ade6840238b1e4f3be41488d))
+
+
+### Features
+
+* **go:** create a not private version for go ([cdb6373](https://github.com/c0olix/asyncApiCodeGen/commit/cdb63739f92674461ec3fc0dcb30a10930cfb2f3))
+
+
+### BREAKING CHANGES
+
+* without given packageName the cli fails
+* input and output location via arguments aren't supported anymore
+* java codegen does not create output dir by default anymore
+
+
+
 # [0.7.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.6.2...v0.7.0) (2022-09-04)
 
 
