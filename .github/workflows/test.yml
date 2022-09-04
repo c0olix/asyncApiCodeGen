@@ -26,4 +26,4 @@ jobs:
         uses: thenativeweb/get-next-version@2.1.2
       - uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ steps.get_next_version.outputs.version }}
+          tag: v${{ steps.get_next_version.outputs.version }}
