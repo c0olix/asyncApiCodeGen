@@ -32,9 +32,10 @@ var typeConversionGoMap = map[string]string{
 var templateFiles embed.FS
 
 type MosaicKafkaGoCodeGenerator struct {
-	template *template.Template
-	data     map[string]interface{}
-	log      *logrus.Logger
+	mosaicTemplate *template.Template
+	normalTemplate *template.Template
+	data           map[string]interface{}
+	log            *logrus.Logger
 }
 
 func (thiz *MosaicKafkaGoCodeGenerator) getImports(data map[string]interface{}) []string {
@@ -202,16 +203,28 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, packageName string, 
 	goKafkaGenerator.data = spec
 
 	tmpl := template.Must(template.New("mosaic-kafka-go-code.tmpl").Funcs(fns).ParseFS(templateFiles, "templates/mosaic-kafka-go-code.tmpl"))
-	goKafkaGenerator.template = tmpl
+	goKafkaGenerator.mosaicTemplate = tmpl
+
+	normalTmpl := template.Must(template.New("kafka-go-code.tmpl").Funcs(fns).ParseFS(templateFiles, "templates/kafka-go-code.tmpl"))
+	goKafkaGenerator.normalTemplate = normalTmpl
 	return &goKafkaGenerator, nil
 }
 
-func (thiz *MosaicKafkaGoCodeGenerator) Generate() ([]byte, error) {
+func (thiz *MosaicKafkaGoCodeGenerator) Generate(flavor string) ([]byte, error) {
 	var tpl bytes.Buffer
-	err := thiz.template.Execute(&tpl, thiz.data)
-	if err != nil {
-		return nil, err
+	switch flavor {
+	case "mosaic":
+		err := thiz.mosaicTemplate.Execute(&tpl, thiz.data)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		err := thiz.normalTemplate.Execute(&tpl, thiz.data)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	p, err := format.Source(tpl.Bytes())
 	if err != nil {
 		return nil, err
