@@ -1,140 +1,123 @@
-# CHANGELOG
+# [0.7.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.6.2...v0.7.0) (2022-09-04)
 
-<!--- next entry here -->
 
-## 0.7.0
-2022-09-03
+### Bug Fixes
 
-### Features
+* remove example output, as it uses a private repository and breaks tests ([44b6019](https://github.com/c0olix/asyncApiCodeGen/commit/44b601939c90d16633a46d3cda5d6816b55f2173))
+* remove password type, as it isn't supported ([e4e5f9d](https://github.com/c0olix/asyncApiCodeGen/commit/e4e5f9d25276ec12b75824e0a60a2785625841c2))
+* remove private repository dependency ([79b9baa](https://github.com/c0olix/asyncApiCodeGen/commit/79b9baa73789d27fb008f4b7439b6699c816f790))
 
-- **mosaicgokafkagenerator:** more validations (c9bd42712fb447781f4cfa7eeb46ff7c38d95c41)
-- **cli:** validate given async api spec (36831a8f90de490570588258ed8135e46577d853)
-- **mosaicjavakafkagenerator:** more validations (5d750eb0033320418a77bb66b00371423787f248)
-
-### Fixes
-
-- add section for supported features (9e24768c1486f966c7fc66b0356e8a962e2b21c0)
-- remove private repository dependency (79b9baa73789d27fb008f4b7439b6699c816f790)
-- remove example output, as it uses a private repository and breaks tests (44b601939c90d16633a46d3cda5d6816b55f2173)
-
-## 0.6.2
-2022-08-31
-
-### Fixes
-
-- don't validate required on bool fields (a109dc7cd2267f61dd592d423266495c6b18c1ee)
-
-## 0.6.1
-2022-08-31
-- **mosaicjavakafkagenerator:** imports for array items and generation of nested objects (c799502a00a079998a7e9e952f47b8e65e88221a)
-- **mosaicjavakafkagenerator:** create output dir if not present (7bd811cce906c10f4fff7ab2c24e6f5871fb9f25)
-
-## 0.6.0
-2022-08-30
 
 ### Features
 
-- **mosaicgokafkagenerator:** validation on struct fields (2a3e474dacc522f6215891847a73c9844f37471d)
+* **cli:** validate given async api spec ([4352cbf](https://github.com/c0olix/asyncApiCodeGen/commit/4352cbf5a85fe2e956032b096ba77d763a23a073))
+* **mosaicGoKafkaGenerator:** more validations ([0e8ae54](https://github.com/c0olix/asyncApiCodeGen/commit/0e8ae54858d2c2eb05fb3983aa163423f3f5cd6d))
+* **mosaicJavaKafkaGenerator:** more validations ([01b727b](https://github.com/c0olix/asyncApiCodeGen/commit/01b727b0c03b35a624083396a2b41745d00e9fcd))
 
-### Fixes
 
-- naming and pointer (e032df48eb00150acf39c4485b50ab15db90d074)
-- **mosaicgokafkagenerator:** missing tests for type conversation (f3db3720c962ad51ebdcf338abcaa28261503cf1)
-- **mosaicjavakafkagenerator:** missing tests for type conversation, imports and annotations (8a68e57de0c77701d656e9d7abecc7663d7b2650)
-- **mosaicgokafkagenerator:** export methods (067ab457eaa658376bd24cb4dee5e01f1d25f986)
 
-## 0.5.0
-2022-08-29
+## [0.6.2](https://github.com/c0olix/asyncApiCodeGen/compare/v0.6.1...v0.6.2) (2022-08-31)
 
-### Features
 
-- add default value (696400449f59fee874042adc2d4691986e4e7376)
-- use async api parser dependency (15849d285cd5913b640572b99de1dda09e3c2678)
+### Bug Fixes
 
-### Fixes
+* don't validate required on bool fields ([43ec5c9](https://github.com/c0olix/asyncApiCodeGen/commit/43ec5c9907cb266f7a3a474532bbc6ae0ce8ce70))
 
-- generate go (0035c7cedf3ee8f17fa4f2234ceb02020d28748c)
-- generate event, consumer, producer java (79e5c88410d27912605b63f7db54036c6f3a8f75)
-- time import for go (00c9bd251311eff3acc6d560916b531de1dd3553)
-- don't inline objects and items (fa23c9d26b6bc135543026520e6ef2c8c7ff52a5)
 
-## 0.4.0
-2022-08-23
 
-### Features
+## [0.6.1](https://github.com/c0olix/asyncApiCodeGen/compare/v0.5.0...v0.6.1) (2022-08-31)
 
-- import for java (e186c97f53ef1302ce1f9881e7229f3302fb246f)
-- respect opId for java (6c01f53d72dc7f3d58c5ff43db8f4395e98d9813)
 
-## 0.3.3
-2022-08-23
+### Bug Fixes
 
-### Fixes
+* **mosaicGoKafkaGenerator:** export methods ([b02124b](https://github.com/c0olix/asyncApiCodeGen/commit/b02124bafb620385eb34a6425649b316f91f984f))
+* **mosaicJavaKafkaGenerator:** create output dir if not present ([2060ea4](https://github.com/c0olix/asyncApiCodeGen/commit/2060ea4e01bb73079800ee31780e104f08264250))
+* **mosaicJavaKafkaGenerator:** imports for array items and generation of nested objects ([0d87f6b](https://github.com/c0olix/asyncApiCodeGen/commit/0d87f6be6dcece40d91b672ed3e323a16f5d39dc))
+* naming and pointer ([6b64c55](https://github.com/c0olix/asyncApiCodeGen/commit/6b64c55f2fc3481d6f44eb64a132db1867ba6674))
 
-- respect OperationId (49c78bcad240b84c39688e3ab1ba5e7cd38a1c3a)
-
-## 0.3.2
-2022-08-22
-
-### Fixes
-
-- array object conversation (de7d2e591aae86cd09f9a303a21391efbc8f8925)
-
-## 0.3.1
-2022-08-22
-
-### Fixes
-
-- type conversation based on map (04781f80a2d16b7750d9f66f0b0be1e6af18f001)
-
-## 0.3.0
-2022-08-22
 
 ### Features
 
-- java items can also have ref string (4f30cfc882ccd466357db12bbe0f81497fef25f5)
+* **mosaicGoKafkaGenerator:** validation on struct fields ([cc51860](https://github.com/c0olix/asyncApiCodeGen/commit/cc518606b6d7f252e49202b5220b61f8314374c8))
 
-## 0.2.0
-2022-08-22
 
-### Features
 
-- array items may have a reference string (cef5a70bc20ac55a1a4dcd8fa4ebb0681f87c26b)
+# [0.5.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.4.0...v0.5.0) (2022-08-29)
 
-## 0.1.2
-2022-08-22
 
-### Fixes
-- correct format (441ce8e1b24551762142ca0b0578c40eec741c2c)
+### Bug Fixes
 
-## 0.1.1
-2022-08-21
+* don't inline objects and items ([8ef53cf](https://github.com/c0olix/asyncApiCodeGen/commit/8ef53cf393478435cab09dc8fee207ebbe108daa))
+* time import for go ([548da5f](https://github.com/c0olix/asyncApiCodeGen/commit/548da5f9e0ec15c93faba2bf42e4eff81cd90458))
 
-### Fixes
-
-- go version (302abae858201be89d1fb0f829b8e09340e36624)
-
-## 0.1.0
-2022-08-21
 
 ### Features
 
-- root command (aa5c3e16b56c16e2eab683468a550c1aca63763c)
-- logging (91b68094239a7ed6f17fe7306613393e8d11c65d)
-- type for asyncApSpec with conversion to go specific syntax (505aadb391e0e0fdae6b8dcfb25a7db9f1556a65)
-- generate command (f80f8c273f41bdaf0946877ac183144dd4191df0)
-- format output (19b7f9b9136abf447fd143df8a3cab5b46ef7e59)
-- java code generator (types) (3ac6644db4caf80a75ba378fd508d728962e4fa8)
-- separate different generators (11954378b7b107c30344856faebcf7b956133395)
-- producer interface for java (7e00ece2e440fc3e638e854df7823e82cd9df543)
-- consumer interface for java (e26003d84e4cb3c1e79eef386cd3c1499d3f981d)
-- embed template files and some minor fixes (445e1d30793a94896904608294ee8ada76c1e346)
-- create documentation commentaries (cfdf3e8979c87a6c89af7828fd4ec447e87bd53f)
+* add default value ([faf334e](https://github.com/c0olix/asyncApiCodeGen/commit/faf334e8e17a2f7faa8fa8cb7749f3c98be4d409))
+* use async api parser dependency ([371f028](https://github.com/c0olix/asyncApiCodeGen/commit/371f0286a611d80ba0f95976001bbb09103a37e5))
 
-### Fixes
 
-- simplify type string generation (13c730ee00fc83be2bd2523f4d58f15f3dcabdb6)
-- change constant names according to convention (9b51bcfb01999eab04f64e9209625ac30fec716d)
-- remove unused code (8458a60e2db398cf747d6db961eba5b40ada23eb)
-- add missing tests (67e69a43ee82d537eca0cd9feb0aed8d716e8a26)
-- add readme (3c665aa5668cf55450aaf3625cec333bb30e96e0)
+
+# [0.4.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.3.3...v0.4.0) (2022-08-23)
+
+
+### Features
+
+* import for java ([e186c97](https://github.com/c0olix/asyncApiCodeGen/commit/e186c97f53ef1302ce1f9881e7229f3302fb246f))
+* respect opId for java ([6c01f53](https://github.com/c0olix/asyncApiCodeGen/commit/6c01f53d72dc7f3d58c5ff43db8f4395e98d9813))
+
+
+
+## [0.3.3](https://github.com/c0olix/asyncApiCodeGen/compare/v0.3.0...v0.3.3) (2022-08-23)
+
+
+### Bug Fixes
+
+* array object conversation ([fecea88](https://github.com/c0olix/asyncApiCodeGen/commit/fecea8816f1a6cbb31da4857754b242df7e9a417))
+* respect OperationId ([01f2039](https://github.com/c0olix/asyncApiCodeGen/commit/01f203939997a9d7bcf0f41d9385a9c7fa564df8))
+
+
+
+# [0.3.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.2.0...v0.3.0) (2022-08-22)
+
+
+### Features
+
+* java items can also have ref string ([564db1b](https://github.com/c0olix/asyncApiCodeGen/commit/564db1bdb64a201afd2b48877d546b4470fd50a6))
+
+
+
+# [0.2.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.1.3...v0.2.0) (2022-08-22)
+
+
+### Features
+
+* array items may have a reference string ([a621477](https://github.com/c0olix/asyncApiCodeGen/commit/a62147791b1efe12a9599bafa245946d926086f3))
+
+
+
+## [0.1.3](https://github.com/c0olix/asyncApiCodeGen/compare/78e9d2c1e1252aaf0a6ab0cbd81bca4b309791b4...v0.1.3) (2022-08-22)
+
+
+### Bug Fixes
+
+* correct format ([f48ce91](https://github.com/c0olix/asyncApiCodeGen/commit/f48ce912a6631ca80c93010717919f9ad9e418d0))
+* go version ([b711a7a](https://github.com/c0olix/asyncApiCodeGen/commit/b711a7a3f5b379c79f6dca61c12639872a8db995))
+
+
+### Features
+
+* consumer interface for java ([436d130](https://github.com/c0olix/asyncApiCodeGen/commit/436d130f6885de74b194efc65e9bcbbec2225cca))
+* create documentation commentaries ([3683694](https://github.com/c0olix/asyncApiCodeGen/commit/368369466da04102465bb51af38a3181a0365952))
+* embed template files and some minor fixes ([207cba0](https://github.com/c0olix/asyncApiCodeGen/commit/207cba0b4c8c7a965ed199204c5d2e0a6a16d7e7))
+* format output ([3ddf78f](https://github.com/c0olix/asyncApiCodeGen/commit/3ddf78ff71580070324701388ffcc9f9752ea7e7))
+* generate command ([a09bdb2](https://github.com/c0olix/asyncApiCodeGen/commit/a09bdb28f7dd7a46e58db5c10cf74edbfbb53037))
+* java code generator (types) ([4e43323](https://github.com/c0olix/asyncApiCodeGen/commit/4e4332323226d84c9198f558711e6067df5470e9))
+* logging ([0e4c7a6](https://github.com/c0olix/asyncApiCodeGen/commit/0e4c7a67a54a7926fdb83e6f45295c2051fc25d2))
+* producer interface for java ([07742d7](https://github.com/c0olix/asyncApiCodeGen/commit/07742d78b8028829b9301e67d5d1d7bb622e1f1a))
+* root command ([78e9d2c](https://github.com/c0olix/asyncApiCodeGen/commit/78e9d2c1e1252aaf0a6ab0cbd81bca4b309791b4))
+* separate different generators ([2123c45](https://github.com/c0olix/asyncApiCodeGen/commit/2123c4581488dd92257f36d87b1a9e77afb367ef))
+* type for asyncApSpec with conversion to go specific syntax ([e3154f6](https://github.com/c0olix/asyncApiCodeGen/commit/e3154f60a7eff2a6d0a80a78730a5668dc25d95f))
+
+
+
