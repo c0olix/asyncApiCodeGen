@@ -46,10 +46,18 @@ var generateCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatalf("Unable to get flavor flag: %v", err)
 		}
+
+		packageFlag, err := cmd.Flags().GetString("packageName")
+		if err != nil {
+			logger.Fatalf("Unable to get package flag: %v", err)
+		} else if packageFlag == "" {
+			logger.Fatal("Unable to get packageFlag flag: empty package name found: \"\"")
+		}
+
 		if langFlag == "go" && flavorFlag == "mosaic" {
-			generateMosaicKafkaGoCode(inputFlag, outputFlag, createDirFlag)
+			generateMosaicKafkaGoCode(inputFlag, outputFlag, createDirFlag, packageFlag)
 		} else if langFlag == "java" && flavorFlag == "mosaic" {
-			generateMosaicKafkaJavaCode(inputFlag, outputFlag, createDirFlag)
+			generateMosaicKafkaJavaCode(inputFlag, outputFlag, createDirFlag, packageFlag)
 		} else {
 			logger.Fatalf("unsupported flags given")
 		}
@@ -62,9 +70,10 @@ func init() {
 	generateCmd.Flags().StringP("flavor", "f", "mosaic", "Which flavor should be used?")
 	generateCmd.Flags().BoolP("createDir", "c", false, "Should directory be created if not present (recursive)?")
 	generateCmd.Flags().StringP("output", "o", "", "Where should the generated code saved to? Attention: Go=File, Java=Dir!")
+	generateCmd.Flags().StringP("packageName", "p", "", "Which package name should the generated code have?")
 }
 
-func generateMosaicKafkaGoCode(path string, out string, createDir bool) {
+func generateMosaicKafkaGoCode(path string, out string, createDir bool, packageName string) {
 	if createDir {
 		file := filepath.Dir(out)
 		err := os.MkdirAll(file, os.ModePerm)
@@ -72,7 +81,7 @@ func generateMosaicKafkaGoCode(path string, out string, createDir bool) {
 			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output folder: %v", err)
 		}
 	}
-	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path, logger)
+	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path, packageName, logger)
 	if err != nil {
 		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to generate code: %v", err)
 	}
@@ -90,14 +99,14 @@ func generateMosaicKafkaGoCode(path string, out string, createDir bool) {
 	}
 }
 
-func generateMosaicKafkaJavaCode(path string, out string, createDir bool) {
+func generateMosaicKafkaJavaCode(path string, out string, createDir bool, packageName string) {
 	if createDir {
 		err := os.MkdirAll(out, os.ModePerm)
 		if err != nil {
 			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output folder: %v", err)
 		}
 	}
-	gen, err := javaGen.NewMosaicKafkaJavaCodeGenerator(path, logger)
+	gen, err := javaGen.NewMosaicKafkaJavaCodeGenerator(path, packageName, logger)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}
