@@ -13,9 +13,17 @@ jobs:
     name: Go ${{ matrix.go }} test
     steps:
       - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
       - uses: reviewdog/action-golangci-lint@v2
         with:
           fail_on_error: true
           go_version: ${{ matrix.go }}
       - run: go test ./...
       ## create tag
+      - name: Get next version
+        id: get_next_version
+        uses: thenativeweb/get-next-version@2.1.2
+      - uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.get_next_version.outputs.version }}
