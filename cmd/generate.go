@@ -19,6 +19,20 @@ var generateCmd = &cobra.Command{
 	asyncApiCodeGen generate in_spec.yaml out.go
  `,
 	Run: func(cmd *cobra.Command, args []string) {
+		inputFlag, err := cmd.Flags().GetString("input")
+		if err != nil {
+			logger.Fatalf("Unable to get input flag: %v", err)
+		} else if inputFlag == "" {
+			logger.Fatal("Unable to get input flag: empty input location found: \"\"")
+		}
+
+		outputFlag, err := cmd.Flags().GetString("output")
+		if err != nil {
+			logger.Fatalf("Unable to get output flag: %v", err)
+		} else if outputFlag == "" {
+			logger.Fatal("Unable to get output flag: empty output location found: \"\"")
+		}
+
 		createDirFlag, err := cmd.Flags().GetBool("createDir")
 		if err != nil {
 			logger.Fatalf("Unable to get createDir flag: %v", err)
@@ -33,9 +47,9 @@ var generateCmd = &cobra.Command{
 			logger.Fatalf("Unable to get flavor flag: %v", err)
 		}
 		if langFlag == "go" && flavorFlag == "mosaic" {
-			generateMosaicKafkaGoCode(args[0], args[1], createDirFlag)
+			generateMosaicKafkaGoCode(inputFlag, outputFlag, createDirFlag)
 		} else if langFlag == "java" && flavorFlag == "mosaic" {
-			generateMosaicKafkaJavaCode(args[0], args[1], createDirFlag)
+			generateMosaicKafkaJavaCode(inputFlag, outputFlag, createDirFlag)
 		} else {
 			logger.Fatalf("unsupported flags given")
 		}
@@ -47,6 +61,7 @@ func init() {
 	generateCmd.Flags().StringP("lang", "l", "go", "What kind of code should be generated?")
 	generateCmd.Flags().StringP("flavor", "f", "mosaic", "Which flavor should be used?")
 	generateCmd.Flags().BoolP("createDir", "c", false, "Should directory be created if not present (recursive)?")
+	generateCmd.Flags().StringP("output", "o", "", "Where should the generated code saved to? Attention: Go=File, Java=Dir!")
 }
 
 func generateMosaicKafkaGoCode(path string, out string, createDir bool) {
