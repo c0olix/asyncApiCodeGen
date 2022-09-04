@@ -16,7 +16,7 @@ var generateCmd = &cobra.Command{
 	Long: `Used to generate code from async api spec. First argument is the spec and the second is the path to the output. 
 	
 	For example:
-	asyncApiCodeGen generate in_spec.yaml out.go
+	asyncApiCodeGen generate -i in_spec.yaml -o out.go
  `,
 	Run: func(cmd *cobra.Command, args []string) {
 		inputFlag, err := cmd.Flags().GetString("input")

@@ -11,8 +11,6 @@ This project aims to generate usable code from an asyncApi-spec (see https://www
 ## Limits
 
 * General: only Kafka as messaging backend
-* Go: for now only a specific flavor of the Kafka package is used which relies on a private repository, so only the types may be usable if you don't
-  have access to the private repository
 
 ## Datatypes, Format, Validations
 
@@ -64,19 +62,73 @@ Further the generator support to add validation/featuress on the resulting types
 | writeOnly          | :x:                | :x:                | :heavy_check_mark: |
 
 ## Usage
+### RootCmd
+```shell
+$ asyncApiCodeGen -h
+This CLI-Tool is used to generate code for given async api spec
+
+Usage:
+  asyncApiCodeGen [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  generate    Used to generate code from async api spec
+  help        Help about any command
+  validate    Validate given asyncApiSpec
+
+Flags:
+  -h, --help           help for asyncApiCodeGen
+  -i, --input string   Where is the source spec located?
+```
+### Generate
 ```shell
 $ asyncApiCodeGen generate -h
 Used to generate code from async api spec. First argument is the spec and the second is the path to the output. 
         
         For example:
-        asyncApiCodeGen generate in_spec.yaml out.go
+        asyncApiCodeGen generate -i in_spec.yaml -o out.go
 
 Usage:
   asyncApiCodeGen generate [flags]
 
 Flags:
-  -f, --flavor string   Which flavor should be used?? (default "mosaic")
-  -h, --help            help for generate
-  -l, --lang string     What kind of code should be generated? (default "go")
+  -c, --createDir            Should directory be created if not present (recursive)?
+  -f, --flavor string        Which (if) flavor should be used?
+  -h, --help                 help for generate
+  -l, --lang string          What kind of code should be generated? (default "go")
+  -o, --output string        Where should the generated code saved to? Attention: Go=File, Java=Dir!
+  -p, --packageName string   Which package name should the generated code have?
+
+Global Flags:
+  -i, --input string   Where is the source spec located?
+```
+#### Possible options for flags
+##### --createDir
+* true
+* false (default)
+##### --flavor
+* "" (Blank) - Generates a default
+* "mosaic" - Generates code with the mosaic flavor, which includes a private repository
+##### --lang
+* "java"
+* "go"
+##### --output
+A path or file, where the generated code should be created.
+>__Attention__: In case of go, a single file will be created, so output must be a file! In case of java multiple files will be created, so the output value must be a directory!
+##### --packageName
+The name of the package e.g. events or com.yourcompany.events
+### Validate
+```shell
+$ asyncApiCodeGen validate -h
+Validate given asyncApiSpec.
+
+Usage:
+  asyncApiCodeGen validate [flags]
+
+Flags:
+  -h, --help   help for validate
+
+Global Flags:
+  -i, --input string   Where is the source spec located?
 
 ```
