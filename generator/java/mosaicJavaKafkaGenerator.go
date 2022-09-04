@@ -288,7 +288,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, pr
 	return annotations
 }
 
-func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, logger *logrus.Logger) (*MosaicKafkaJavaCodeGenerator, error) {
+func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, packageName string, logger *logrus.Logger) (*MosaicKafkaJavaCodeGenerator, error) {
 	javaKafkaGenerator := MosaicKafkaJavaCodeGenerator{
 		log: logger,
 	}
@@ -308,6 +308,7 @@ func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, logger *logrus.Log
 	if err != nil {
 		return nil, err
 	}
+	spec["packageName"] = packageName
 	javaKafkaGenerator.data = spec
 
 	tmpl := template.Must(template.New("mosaic-kafka-java-event-class.tmpl").Funcs(fns).ParseFS(templateFiles, "templates/mosaic-kafka-java-event-class.tmpl"))
@@ -324,6 +325,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 	messages := generator.GetMessages(thiz.data)
 	for _, message := range messages {
 		var tpl bytes.Buffer
+		message["packageName"] = thiz.data["packageName"]
 		err := thiz.eventClassTemplate.Execute(&tpl, message)
 		if err != nil {
 			return nil, err
@@ -346,6 +348,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 				"type":                 obj["type"],
 				"parent":               obj["parent"],
 			},
+			"packageName": thiz.data["packageName"],
 		}
 		err := thiz.eventClassTemplate.Execute(&tpl, objEvent)
 		if err != nil {
@@ -370,6 +373,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 				"type":                 items["type"],
 				"parent":               items["parent"],
 			},
+			"packageName": thiz.data["packageName"],
 		}
 		err := thiz.eventClassTemplate.Execute(&tpl, objEvent)
 		if err != nil {
@@ -385,6 +389,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 		ch := channel.(map[string]interface{})
 		if ch["publish"] != nil {
 			operation := ch["publish"].(map[string]interface{})
+			operation["packageName"] = thiz.data["packageName"]
 			err := thiz.consumerInterfaceTemplate.Execute(&tpl, operation)
 			if err != nil {
 				return nil, err
@@ -396,6 +401,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 			})
 		} else {
 			operation := ch["subscribe"].(map[string]interface{})
+			operation["packageName"] = thiz.data["packageName"]
 			err := thiz.producerInterfaceTemplate.Execute(&tpl, operation)
 			if err != nil {
 				return nil, err

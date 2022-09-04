@@ -178,7 +178,7 @@ func (thiz *MosaicKafkaGoCodeGenerator) validations(property map[string]interfac
 	return ""
 }
 
-func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) (*MosaicKafkaGoCodeGenerator, error) {
+func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, packageName string, log *logrus.Logger) (*MosaicKafkaGoCodeGenerator, error) {
 	goKafkaGenerator := MosaicKafkaGoCodeGenerator{
 		log: log,
 	}
@@ -195,6 +195,7 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, log *logrus.Logger) 
 		"validations":     goKafkaGenerator.validations,
 	}
 	spec, err := generator.LoadAsyncApiSpecWithParser(asyncApiSpecPath)
+	spec["packageName"] = packageName
 	if err != nil {
 		return nil, err
 	}
