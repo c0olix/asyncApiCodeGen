@@ -26,7 +26,6 @@ var typeConversionJavaMap = map[string]string{
 	"binary":    "File",
 	"date":      "OffsetDateTime",
 	"date-time": "OffsetDateTime",
-	"password":  "password",
 }
 
 //go:embed templates

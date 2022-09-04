@@ -26,7 +26,6 @@ var typeConversionGoMap = map[string]string{
 	"binary":    "[]byte",
 	"date":      "time.Time",
 	"date-time": "time.Time",
-	"password":  "password",
 }
 
 //go:embed templates
