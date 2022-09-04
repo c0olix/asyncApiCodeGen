@@ -1,0 +1,18 @@
+name: Test
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Go test
+    steps:
+      - uses: actions/checkout@master
+      - uses: reviewdog/action-golangci-lint@v2
+        with:
+          fail_on_error: true
+          go_version: 1.19
+      - run: go test ./...

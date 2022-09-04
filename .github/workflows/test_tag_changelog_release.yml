@@ -2,15 +2,10 @@ name: Test, Release Tag, Update Changelog
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: [ '1.19' ]
-    name: Go ${{ matrix.go }} test
+    name: Go test
     steps:
       - uses: actions/checkout@master
         with:
@@ -18,7 +13,7 @@ jobs:
       - uses: reviewdog/action-golangci-lint@v2
         with:
           fail_on_error: true
-          go_version: ${{ matrix.go }}
+          go_version: 1.19
       - run: go test ./...
       - name: Conventional Changelog Action
         uses: TriPSs/conventional-changelog-action@v3
