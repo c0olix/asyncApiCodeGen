@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"github.com/c0olix/goChan"
 	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
-	"github.com/segmentio/kafka-go"
 	"reflect"
 {{- range $imp := getImports .}}
 	"{{$imp}}"
