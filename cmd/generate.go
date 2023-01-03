@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	goGen "github.com/c0olix/asyncApiCodeGen/generator/go"
+	"github.com/c0olix/asyncApiCodeGen/generator/gogen"
 	javaGen "github.com/c0olix/asyncApiCodeGen/generator/java"
 	"github.com/spf13/cobra"
 	"os"
@@ -81,7 +81,7 @@ func generateMosaicKafkaGoCode(path string, out string, createDir bool, packageN
 			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output folder: %v", err)
 		}
 	}
-	generator, err := goGen.NewMosaicKafkaGoCodeGenerator(path, packageName, logger)
+	generator, err := gogen.NewMosaicKafkaGoCodeGenerator(path, packageName, logger)
 	if err != nil {
 		logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to generate code: %v", err)
 	}

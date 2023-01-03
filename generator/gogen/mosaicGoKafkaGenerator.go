@@ -2,7 +2,6 @@ package gogen
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"github.com/c0olix/asyncApiCodeGen/generator"
 	"github.com/iancoleman/strcase"
@@ -13,27 +12,10 @@ import (
 	"text/template"
 )
 
-var typeConversionGoMap = map[string]string{
-	"integer":   "int",
-	"int32":     "int32",
-	"int64":     "int64",
-	"string":    "string",
-	"email":     "string",
-	"boolean":   "bool",
-	"number":    "float32",
-	"float":     "float32",
-	"double":    "float64",
-	"binary":    "[]byte",
-	"date":      "time.Time",
-	"date-time": "time.Time",
-}
-
-//go:embed templates
-var templateFiles embed.FS
-
 type MosaicKafkaGoCodeGenerator struct {
 	mosaicTemplate *template.Template
 	normalTemplate *template.Template
+	mqttTemplate   *template.Template
 	data           map[string]interface{}
 	log            *logrus.Logger
 }
@@ -209,6 +191,9 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, packageName string, 
 
 	normalTmpl := template.Must(template.New("kafka-go-code.tmpl").Funcs(fns).ParseFS(templateFiles, "templates/kafka-go-code.tmpl"))
 	goKafkaGenerator.normalTemplate = normalTmpl
+
+	mqttTemplate := template.Must(template.New("mqtt-go-code.tmpl").Funcs(fns).ParseFS(templateFiles, "templates/mqtt-go-code.tmpl"))
+	goKafkaGenerator.mqttTemplate = mqttTemplate
 	return &goKafkaGenerator, nil
 }
 
@@ -217,6 +202,11 @@ func (thiz *MosaicKafkaGoCodeGenerator) Generate(flavor string) ([]byte, error) 
 	switch flavor {
 	case "mosaic":
 		err := thiz.mosaicTemplate.Execute(&tpl, thiz.data)
+		if err != nil {
+			return nil, err
+		}
+	case "mqtt":
+		err := thiz.mqttTemplate.Execute(&tpl, thiz.data)
 		if err != nil {
 			return nil, err
 		}
