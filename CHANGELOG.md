@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.0...v1.0.1) (2023-01-03)
+
+
+### Bug Fixes
+
+* remove unused imports from template ([868e58d](https://github.com/c0olix/asyncApiCodeGen/commit/868e58d8ca13d048b95627faebcbfa79417943ab))
+
+
+
 # [1.0.0](https://github.com/c0olix/asyncApiCodeGen/compare/v0.7.0...v1.0.0) (2022-09-04)
 
 
