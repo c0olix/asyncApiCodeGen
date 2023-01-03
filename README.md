@@ -109,6 +109,7 @@ Global Flags:
 ##### --flavor
 * "" (Blank) - Generates a default
 * "mosaic" - Generates code with the mosaic flavor, which includes a private repository
+* "mqtt" - Generates a mqtt compatible api (go only for now)
 ##### --lang
 * "java"
 * "go"

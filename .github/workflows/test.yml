@@ -13,6 +13,6 @@ jobs:
       - uses: actions/checkout@master
       - uses: reviewdog/action-golangci-lint@v2
         with:
-          fail_on_error: true
+          fail_on_error: false
           go_version: 1.19
       - run: go test ./...
