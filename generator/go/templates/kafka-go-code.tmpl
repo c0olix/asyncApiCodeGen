@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/c0olix/goChan"
+	"github.com/c0olix/goChan/kafka"
 	"github.com/go-playground/validator/v10"
 	"reflect"
 {{- range $imp := getImports .}}
@@ -21,13 +22,6 @@ const (
 )
 
 var validate *validator.Validate = validator.New()
-
-// KafkaTopicConfig Holds configuration needed fo create a kafka topic
-type KafkaTopicConfig struct {
-	TopicGroup string
-	NumPartitions int
-	ReplicationFactor int
-}
 
 func UnmarshalEvent(proto interface{}, messageArray []byte) (interface{}, error) {
 	eventType := reflect.TypeOf(proto)
@@ -158,7 +152,7 @@ type DefaultProducer struct {
 }
 
 // NewDefaultConsumer wires all needed dependencies to create a DefaultConsumer
-func NewDefaultConsumer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config KafkaTopicConfig,mw ...goChan.Middleware) (*DefaultConsumer, error) {
+func NewDefaultConsumer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultConsumer, error) {
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
 	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, errorCallback, config)
@@ -178,7 +172,7 @@ func NewDefaultConsumer(manager goChan.ManagerInterface, errorCallback func(ctx 
 }
 
 // NewDefaultProducer wires all needed dependencies to create a DefaultProducer
-func NewDefaultProducer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config KafkaTopicConfig, mw ...goChan.Middleware) (*DefaultProducer, error) {
+func NewDefaultProducer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultProducer, error) {
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.subscribe}}
 	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, errorCallback, config)
