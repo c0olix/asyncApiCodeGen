@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.1...v1.0.2) (2023-01-04)
+
+
+### Bug Fixes
+
+* add missing import ([ce3a8aa](https://github.com/c0olix/asyncApiCodeGen/commit/ce3a8aa224b703889ade56a8ffa332e58ba36d03))
+
+
+
 ## [1.0.1](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.0...v1.0.1) (2023-01-03)
 
 
