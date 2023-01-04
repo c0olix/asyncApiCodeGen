@@ -9,6 +9,10 @@ import (
 	"github.com/c0olix/goChan"
 	"github.com/c0olix/goChan/kafka"
 	"github.com/go-playground/validator/v10"
+{{if hasProducer .}}
+	"github.com/pkg/errors"
+	kafkaGo "github.com/segmentio/kafka-go"
+{{- end}}
 	"reflect"
 {{- range $imp := getImports .}}
 	"{{$imp}}"
@@ -210,7 +214,7 @@ func (d DefaultProducer) {{camel $channel.subscribe.operationId}}(ctx context.Co
 	if err != nil {
 		return errors.Wrap(err, "unable to marshal eventdata")
 	}
-	msg := kafka.Message{
+	msg := kafkaGo.Message{
 		Value:         eventData,
 	}
 	err = d.{{ lower $channelName | camel}}Topic.Produce(ctx, msg)

@@ -112,3 +112,23 @@ func GetItemObjects(messages []map[string]interface{}) []map[string]interface{} 
 func HasDefault(property map[string]interface{}) bool {
 	return property["default"] != nil
 }
+
+func HasProducer(data map[string]interface{}) bool {
+	for _, channel := range data["channels"].(map[string]interface{}) {
+		operation := channel.(map[string]interface{})
+		if operation["subscribe"] != nil {
+			return true
+		}
+	}
+	return false
+}
+
+func HasConsumer(data map[string]interface{}) bool {
+	for _, channel := range data["channels"].(map[string]interface{}) {
+		operation := channel.(map[string]interface{})
+		if operation["publish"] != nil {
+			return true
+		}
+	}
+	return false
+}
