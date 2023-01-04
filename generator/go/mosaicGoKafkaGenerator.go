@@ -194,6 +194,8 @@ func NewMosaicKafkaGoCodeGenerator(asyncApiSpecPath string, packageName string, 
 		"lowerCamel":      strcase.ToLowerCamel,
 		"checkRequired":   generator.CheckRequired,
 		"validations":     goKafkaGenerator.validations,
+		"hasProducer":     generator.HasProducer,
+		"hasConsumer":     generator.HasConsumer,
 	}
 	spec, err := generator.LoadAsyncApiSpecWithParser(asyncApiSpecPath)
 	spec["packageName"] = packageName
