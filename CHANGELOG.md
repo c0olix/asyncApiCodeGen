@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.1.0...v1.2.0) (2023-01-22)
+
+
+### Features
+
+* info logging ([f4f3d16](https://github.com/c0olix/asyncApiCodeGen/commit/f4f3d16694af3de822338c9985201adcb2535c39))
+
+
+
 # [1.1.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.3...v1.1.0) (2023-01-22)
 
 
