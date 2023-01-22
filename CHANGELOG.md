@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.3...v1.1.0) (2023-01-22)
+
+
+### Features
+
+* add MQTT as flavor ([58cfe27](https://github.com/c0olix/asyncApiCodeGen/commit/58cfe274f03881764335526ccf894c742197d309))
+
+
+
 ## [1.0.3](https://github.com/c0olix/asyncApiCodeGen/compare/v1.0.2...v1.0.3) (2023-01-12)
 
 
