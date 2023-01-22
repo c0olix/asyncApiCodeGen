@@ -54,6 +54,13 @@ var generateCmd = &cobra.Command{
 			logger.Fatal("Unable to get packageFlag flag: empty package name found: \"\"")
 		}
 
+		logger.Infof("Input: %v", inputFlag)
+		logger.Infof("Output: %v", outputFlag)
+		logger.Infof("Create Dir: %v", createDirFlag)
+		logger.Infof("PackageName: %v", packageFlag)
+		logger.Infof("Language: %v", langFlag)
+		logger.Infof("Flavor: %v", flavorFlag)
+
 		if langFlag == "go" {
 			generateMosaicKafkaGoCode(inputFlag, outputFlag, createDirFlag, packageFlag, flavorFlag)
 		} else if langFlag == "java" {
