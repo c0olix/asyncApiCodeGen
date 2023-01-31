@@ -123,7 +123,7 @@ func New{{$item.items.title}}({{range $propertyName, $property := $item.items.pr
 type ConsumerInterface interface {
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
-	{{camel $channel.publish.operationId}}(handler goChan.Handler)
+	{{camel $channel.publish.operationId}}(handler goChan.Handler) chan error
     {{- end}}
 {{- end}}
 }
@@ -156,10 +156,10 @@ type DefaultProducer struct {
 }
 
 // NewDefaultConsumer wires all needed dependencies to create a DefaultConsumer
-func NewDefaultConsumer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultConsumer, error) {
+func NewDefaultConsumer(manager goChan.ManagerInterface, config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultConsumer, error) {
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.publish}}
-	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, errorCallback, config)
+	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, config)
 	if err != nil {
 		return nil, err
 	}
@@ -176,10 +176,10 @@ func NewDefaultConsumer(manager goChan.ManagerInterface, errorCallback func(ctx 
 }
 
 // NewDefaultProducer wires all needed dependencies to create a DefaultProducer
-func NewDefaultProducer(manager goChan.ManagerInterface, errorCallback func(ctx context.Context, err error), config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultProducer, error) {
+func NewDefaultProducer(manager goChan.ManagerInterface, config kafka.ChannelConfig, mw ...goChan.Middleware) (*DefaultProducer, error) {
 {{- range $channelName, $channel := .channels }}
     {{- if $channel.subscribe}}
-	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, errorCallback, config)
+	{{ lower $channelName | camel}}Topic, err := manager.CreateChannel({{ lower $channelName | camel}}TopicName, config)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +199,8 @@ func NewDefaultProducer(manager goChan.ManagerInterface, errorCallback func(ctx 
     {{- if $channel.publish}}
 //{{camel $channel.publish.operationId}} is the go kafka mosaic style flavored implementation of the ConsumerInterface registered on DefaultConsumer
 // to consume the {{$channel.publish.message.name}} Event.
-func (d DefaultConsumer)  {{camel $channel.publish.operationId}} (handler goChan.Handler) {
-	d.{{ lower $channelName | camel}}Topic.Consume(handler)
+func (d DefaultConsumer)  {{camel $channel.publish.operationId}} (handler goChan.Handler) chan error{
+	return d.{{ lower $channelName | camel}}Topic.Consume(handler)
 }
     {{- end}}
 {{ end}}
