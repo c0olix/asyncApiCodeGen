@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.2.0...v2.0.0) (2023-01-31)
+
+
+* feat!: new version of goChan (including breaking changes) ([fa0e046](https://github.com/c0olix/asyncApiCodeGen/commit/fa0e0468b75801d2128b43bd23f4dea6c7f304d0))
+
+
+### BREAKING CHANGES
+
+* generated code will break old versions
+
+
+
 # [1.2.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.1.0...v1.2.0) (2023-01-22)
 
 
