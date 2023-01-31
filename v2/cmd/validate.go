@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/c0olix/asyncApiCodeGen/generator"
+	"github.com/c0olix/asyncApiCodeGen/v2/generator"
 	"github.com/spf13/cobra"
 )
 

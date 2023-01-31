@@ -1,0 +1,139 @@
+asyncapi: 2.2.0
+info:
+  title: Example
+  version: 0.1.0
+servers:
+  production:
+    url: broker.mycompany.com
+    protocol: amqp
+    description: This is "My Company" broker.
+channels:
+  TEST_TOPIC:
+    publish:
+      operationId: consumeTestTopicEvent
+      message:
+        $ref: "#/components/messages/TestTopicEvent"
+  TEST_TOPIC_EXCLUSIVE_MIN_MAX:
+    publish:
+      operationId: consumeTestTopicExclusiveMinMaxEvent
+      message:
+        $ref: "#/components/messages/TestTopicExclusiveMinMaxMessage"
+  TEST_TOPIC_STRING_EVENT:
+    publish:
+      operationId: consumeTestTopicStringEvent
+      message:
+        $ref: "#/components/messages/TestTopicStringMessage"
+  TEST_TOPIC_ARRAY_MIN_MAX_UNIQUE:
+    publish:
+      operationId: consumeTestTopicArrayWithMinMaxAndUniquenessEvent
+      message:
+        $ref: "#/components/messages/TestTopicArrayWithMinMaxAndUniquenessMessage"
+  USER_DELETED:
+    publish:
+      operationId: consumeUserDeletedEvent
+      message:
+        $ref: "#/components/messages/UserDeletedEvent"
+  USER_LOCKED:
+    subscribe:
+      operationId: produceUserLockedEvent
+      message:
+        $ref: "#/components/messages/UserLockedEvent"
+components:
+  messages:
+    TestTopicEvent:
+      name: TestTopicEvent
+      description: A brief description for the TestTopicEvent
+      payload:
+        $ref: "#/components/schemas/TestTopicPayload"
+    TestTopicExclusiveMinMaxMessage:
+      name: TestTopicExclusiveMinMaxMessage
+      description: A brief description for the TestTopicEvent
+      payload:
+        $ref: "#/components/schemas/TestTopicExclusiveMinMaxPayload"
+    TestTopicStringMessage:
+      name: TestTopicStringMessage
+      description: A brief description for the TestTopicEvent
+      payload:
+        $ref: "#/components/schemas/TestTopicStringPayload"
+    TestTopicArrayWithMinMaxAndUniquenessMessage:
+      name: TestTopicArrayWithMinMaxAndUniquenessMessage
+      description: A brief description for the TestTopicEvent
+      payload:
+        $ref: "#/components/schemas/TestTopicArrayWithMinMaxAndUniquenessPayload"
+    UserDeletedEvent:
+      name: UserDeletedEvent
+      description: A brief description for the UserDeletedEvent
+      payload:
+        $ref: "#/components/schemas/UserDeletedPayload"
+    UserLockedEvent:
+      name: UserLockedEvent
+      description: A brief description for the UserLockedEvent
+      payload:
+        $ref: "#/components/schemas/UserLockedPayload"
+  schemas:
+    TestTopicPayload:
+      type: object
+      title: TestTopicPayload
+      required:
+        - anInteger
+      properties:
+        anInteger:
+          type: integer
+          format: int32
+          minimum: 2
+          maximum: 5
+          default: 3
+    TestTopicExclusiveMinMaxPayload:
+      type: object
+      title: TestTopicExclusiveMinMaxPayload
+      required:
+        - anInteger
+      properties:
+        anInteger:
+          type: integer
+          format: int32
+          exclusiveMinimum: 1
+          exclusiveMaximum: 5
+    TestTopicStringPayload:
+      type: object
+      title: TestTopicStringPayload
+      required:
+        - aString
+      properties:
+        aString:
+          type: string
+          minLength: 3
+          maxLength: 20
+    TestTopicArrayWithMinMaxAndUniquenessPayload:
+      type: object
+      title: TestTopicStringPayload
+      required:
+        - anArray
+      properties:
+        anArray:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: integer
+          uniqueItems: true
+    UserDeletedPayload:
+      type: object
+      title: UserDeletedPayload
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          format: email
+    UserLockedPayload:
+      type: object
+      title: UserDeletedPayload
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          format: email
+        reason:
+          type: string

@@ -1,0 +1,7 @@
+package {{.packageName}}.producer;
+
+import javax.validation.constraints.NotNull;
+
+public interface I{{.message.name}}Producer {
+    void {{.operationId}}(@NotNull {{.message.name}} {{.message.name}});
+}

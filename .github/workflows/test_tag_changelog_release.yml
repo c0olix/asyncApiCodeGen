@@ -14,7 +14,7 @@ jobs:
         with:
           fail_on_error: false
           go_version: 1.19
-      - run: go test ./...
+      - run: cd v2 && go test ./...
       - name: Conventional Changelog Action
         uses: TriPSs/conventional-changelog-action@v3
         with:

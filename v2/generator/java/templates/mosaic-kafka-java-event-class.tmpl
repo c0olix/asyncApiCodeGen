@@ -1,0 +1,24 @@
+{{$required :=.payload.required -}}
+package {{.packageName}}.events;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+{{- range $import := getImports .payload}}
+{{$import}}
+{{- end}}
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class {{.name}} {
+{{- range $propertyName, $property := .payload.properties -}}
+{{- range $annotation := getAnnotations $propertyName $property $required}}
+	{{$annotation}}
+{{- end}}
+	private {{convertToJavaType $property}} {{$propertyName }}{{if hasDefault $property}} = {{$property.default}}{{ end}};
+{{- end}}
+}
