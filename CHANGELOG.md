@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.0...v2.0.1) (2023-02-02)
+
+
+### Bug Fixes
+
+* only import context if has producer ([ce3a29c](https://github.com/c0olix/asyncApiCodeGen/commit/ce3a29c3330d4e585ffa6c8031c5214c13f564d1))
+
+
+
 # [2.0.0](https://github.com/c0olix/asyncApiCodeGen/compare/v1.2.0...v2.0.0) (2023-01-31)
 
 
