@@ -4,7 +4,9 @@
 package {{.packageName}}
 {{ $messages := getMessages .}} {{$objects := getObjects $messages}} {{$items := getItemObjects $messages}}
 import (
+{{if hasProducer .}}
 	"context"
+{{- end}}
 	"encoding/json"
 	"github.com/c0olix/goChan"
 	"github.com/c0olix/goChan/kafka"
