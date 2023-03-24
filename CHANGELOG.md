@@ -1,3 +1,12 @@
+## [2.0.2](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.1...v2.0.2) (2023-03-24)
+
+
+### Bug Fixes
+
+* import time when format is date ([2f2dab8](https://github.com/c0olix/asyncApiCodeGen/commit/2f2dab80d19df479fc99c32fb6c2180cfef87983))
+
+
+
 ## [2.0.1](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.0...v2.0.1) (2023-02-02)
 
 
