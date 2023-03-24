@@ -59,7 +59,7 @@ func extractImport(operationProperties map[string]interface{}) string {
 		if prop["format"] != nil {
 			frm := prop["format"].(string)
 			switch frm {
-			case "date-time":
+			case "date-time", "date":
 				return "time"
 			}
 		}

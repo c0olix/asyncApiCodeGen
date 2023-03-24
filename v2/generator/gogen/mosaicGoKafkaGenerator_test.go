@@ -26,7 +26,7 @@ func TestMosaicKafkaGoCodeGenerator_getImports(t *testing.T) {
 										"properties": map[string]interface{}{
 											"testProp": map[string]interface{}{
 												"type":   "string",
-												"format": "date-time",
+												"format": "date",
 											},
 										},
 									},

@@ -55,7 +55,7 @@ func (thiz *MosaicKafkaGoCodeGenerator) extractImport(operationProperties map[st
 		if prop["format"] != nil {
 			frm := prop["format"].(string)
 			switch frm {
-			case "date-time":
+			case "date-time", "date":
 				return "time"
 			}
 		}
