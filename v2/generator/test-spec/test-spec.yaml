@@ -125,7 +125,7 @@ components:
       properties:
         username:
           type: string
-          format: email
+          format: date
     UserLockedPayload:
       type: object
       title: UserDeletedPayload
@@ -134,6 +134,6 @@ components:
       properties:
         username:
           type: string
-          format: email
+          format: date
         reason:
           type: string
