@@ -1,3 +1,18 @@
+# [2.1.0](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.2...v2.1.0) (2023-10-23)
+
+
+### Bug Fixes
+
+* missing go sum entries ([edd92e7](https://github.com/c0olix/asyncApiCodeGen/commit/edd92e75f768da8307f9463a7907832689aae967))
+* package names ([ecd6b98](https://github.com/c0olix/asyncApiCodeGen/commit/ecd6b98502597b52419178fcf32e8738c1a2e88f))
+
+
+### Features
+
+* introduce springboot3 flavor for java ([968d9e9](https://github.com/c0olix/asyncApiCodeGen/commit/968d9e9a24db2551a819e84b4211acfaef236f5a))
+
+
+
 ## [2.0.2](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.1...v2.0.2) (2023-03-24)
 
 
