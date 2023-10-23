@@ -113,7 +113,7 @@ func generateMosaicKafkaJavaCode(path string, out string, createDir bool, packag
 			logger.WithField("stack", fmt.Sprintf("%+v", err)).Fatalf("unable to create output folder: %v", err)
 		}
 	}
-	gen, err := javaGen.NewMosaicKafkaJavaCodeGenerator(path, packageName, logger)
+	gen, err := javaGen.NewMosaicKafkaJavaCodeGenerator(path, packageName, flavor, logger)
 	if err != nil {
 		logger.Fatalf("unable to generate code: %v", err)
 	}
