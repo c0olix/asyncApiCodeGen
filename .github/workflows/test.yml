@@ -11,8 +11,4 @@ jobs:
     name: Go test
     steps:
       - uses: actions/checkout@master
-      - uses: reviewdog/action-golangci-lint@v2
-        with:
-          fail_on_error: false
-          go_version: 1.19
       - run: cd v2 && go test ./...
