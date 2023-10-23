@@ -28,6 +28,8 @@ var typeConversionJavaMap = map[string]string{
 	"date-time": "OffsetDateTime",
 }
 
+var flavor = "springboot2"
+
 //go:embed templates
 var templateFiles embed.FS
 
@@ -50,6 +52,10 @@ type ResultFile struct {
 
 func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]interface{}) []string {
 	var out []string
+	var validationPackage = "javax"
+	if flavor == "springboot3" {
+		validationPackage = "jakarta"
+	}
 	properties := messagePayload["properties"].(map[string]interface{})
 	var required []interface{}
 	if messagePayload["required"] != nil {
@@ -64,37 +70,37 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 			format = &form
 		}
 		if property["minimum"] != nil {
-			importStatement := "import javax.validation.constraints.Min;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Min;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
 		}
 		if property["maximum"] != nil {
-			importStatement := "import javax.validation.constraints.Max;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Max;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
 		}
 		if property["minLength"] != nil {
-			importStatement := "import javax.validation.constraints.Size;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Size;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
 		}
 		if property["maxLength"] != nil {
-			importStatement := "import javax.validation.constraints.Size;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Size;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
 		}
 		if property["minItems"] != nil {
-			importStatement := "import javax.validation.constraints.Size;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Size;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
 		}
 		if property["maxItems"] != nil {
-			importStatement := "import javax.validation.constraints.Size;"
+			importStatement := fmt.Sprintf("import %s.validation.constraints.Size;", validationPackage)
 			if !slices.Contains(out, importStatement) {
 				out = append(out, importStatement)
 			}
@@ -103,12 +109,12 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 			for _, reqProp := range required {
 				if propKey == reqProp.(string) {
 					if typ == "string" && format == nil {
-						importStatement := "import javax.validation.constraints.NotBlank;"
+						importStatement := fmt.Sprintf("import %s.validation.constraints.NotBlank;", validationPackage)
 						if !slices.Contains(out, importStatement) {
 							out = append(out, importStatement)
 						}
 					} else {
-						importStatement := "import javax.validation.constraints.NotNull;"
+						importStatement := fmt.Sprintf("import %s.validation.constraints.NotNull;", validationPackage)
 						if !slices.Contains(out, importStatement) {
 							out = append(out, importStatement)
 						}
@@ -119,7 +125,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 		if format != nil {
 			switch *format {
 			case "email":
-				importStatement := "import javax.validation.constraints.Email;"
+				importStatement := fmt.Sprintf("import %s.validation.constraints.Email;", validationPackage)
 				if !slices.Contains(out, importStatement) {
 					out = append(out, importStatement)
 				}
@@ -147,7 +153,7 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getImports(messagePayload map[string]i
 					if items["format"] != nil {
 						switch items["format"] {
 						case "email":
-							importStatement := "import javax.validation.constraints.Email;"
+							importStatement := fmt.Sprintf("import %s.validation.constraints.Email;", validationPackage)
 							if !slices.Contains(out, importStatement) {
 								out = append(out, importStatement)
 							}
@@ -288,9 +294,12 @@ func (thiz *MosaicKafkaJavaCodeGenerator) getAnnotations(propertyName string, pr
 	return annotations
 }
 
-func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, packageName string, logger *logrus.Logger) (*MosaicKafkaJavaCodeGenerator, error) {
+func NewMosaicKafkaJavaCodeGenerator(asyncApiSpecPath string, packageName string, fl string, logger *logrus.Logger) (*MosaicKafkaJavaCodeGenerator, error) {
 	javaKafkaGenerator := MosaicKafkaJavaCodeGenerator{
 		log: logger,
+	}
+	if fl != "" {
+		flavor = fl
 	}
 	fns := template.FuncMap{
 		"getImports":        javaKafkaGenerator.getImports,
