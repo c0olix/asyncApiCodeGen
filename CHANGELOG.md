@@ -1,3 +1,12 @@
+## [2.1.1](https://github.com/c0olix/asyncApiCodeGen/compare/v2.1.0...v2.1.1) (2023-10-24)
+
+
+### Bug Fixes
+
+* missing import change on producer ([77c6646](https://github.com/c0olix/asyncApiCodeGen/commit/77c664643c5cf6f85042c4f4826cae0950e306fa))
+
+
+
 # [2.1.0](https://github.com/c0olix/asyncApiCodeGen/compare/v2.0.2...v2.1.0) (2023-10-23)
 
 
