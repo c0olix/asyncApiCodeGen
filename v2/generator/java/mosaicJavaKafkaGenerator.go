@@ -411,6 +411,11 @@ func (thiz *MosaicKafkaJavaCodeGenerator) Generate() (*MosaicKafkaJavaCodeResult
 		} else {
 			operation := ch["subscribe"].(map[string]interface{})
 			operation["packageName"] = thiz.data["packageName"]
+			if flavor == "springboot3" {
+				operation["validationPackage"] = "jakarta"
+			} else {
+				operation["validationPackage"] = "javax"
+			}
 			err := thiz.producerInterfaceTemplate.Execute(&tpl, operation)
 			if err != nil {
 				return nil, err
